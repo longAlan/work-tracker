@@ -140,8 +140,13 @@ tr:hover .arch-btn{opacity:1}
 tr.recur-child td{background:#fafaf8}
 tr.recur-child:hover td{background:#f5f4f1}
 .recur-label{font-size:11px;color:#aaa;padding-left:1.1rem;display:block}
-.cat-input{font-size:12px;border:none;background:transparent;outline:none;width:100%;font-family:inherit;color:#1a1a18;padding:0}
+.cat-input{font-size:12px;border:none;background:transparent;outline:none;width:100%;font-family:inherit;color:#1a1a18;padding:0;border-radius:6px;transition:background 0.15s,color 0.15s}
+.cat-input.filled{padding:2px 8px;font-weight:500;cursor:pointer}
 .cat-input::placeholder{color:#c8c6bc}
+.grp-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid #c8c6bc;background:#fff;color:#6b6b67;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.grp-btn:hover{background:#f8f7f4;color:#1a1a18}
+.grp-btn.active{background:#E6F1FB;color:#185FA5;border-color:#185FA5}
+tr.cat-group-hdr td{background:#f1efe8!important;font-size:11px;font-weight:600;color:#5F5E5A;padding:4px 12px!important;border-bottom:0.5px solid #e5e3db;letter-spacing:0.02em;text-transform:uppercase}
 
 /* priority */
 .pri-col{width:26px;text-align:center;padding-left:4px!important;padding-right:2px!important}
@@ -235,20 +240,20 @@ tr.priority-row:hover td{background:#fef9c3!important}
   <div class="card" id="meetings-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Special Meetings</span>
-      <span class="card-hdr-meta" id="meetings-count">0 meetings</span>
+      <div style="display:flex;align-items:center;gap:8px"><button class="grp-btn" id="meetings-grp-btn" onclick="toggleGroupBy('meetings',this)">Group by category</button><span class="card-hdr-meta" id="meetings-count">0 meetings</span></div>
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
-        <col style="width:95px"><col style="width:160px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+        <col style="width:26px"><col style="width:95px"><col><col style="width:136px"><col style="width:120px">
+        <col style="width:115px"><col style="width:160px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
-        <th class="sortable" onclick="sortTbl('meetings',1,this)">Meeting<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',2,this)">Date<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',3,this)">Accountable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',4,this)">Status<span class="sarr"></span></th>
         <th>Category</th>
+        <th class="sortable" onclick="sortTbl('meetings',2,this)">Meeting<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',3,this)">Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',4,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',5,this)">Status<span class="sarr"></span></th>
         <th>Client Attendees</th>
         <th>Agenda</th><th>Deck</th><th></th>
       </tr></thead>
@@ -260,20 +265,20 @@ tr.priority-row:hover td{background:#fef9c3!important}
   <div class="card" id="deliverables-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Deliverables</span>
-      <span class="card-hdr-meta" id="deliverables-count">0 deliverables</span>
+      <div style="display:flex;align-items:center;gap:8px"><button class="grp-btn" id="deliverables-grp-btn" onclick="toggleGroupBy('deliverables',this)">Group by category</button><span class="card-hdr-meta" id="deliverables-count">0 deliverables</span></div>
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
-        <col style="width:95px"><col style="width:135px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+        <col style="width:26px"><col style="width:95px"><col><col style="width:136px"><col style="width:120px">
+        <col style="width:115px"><col style="width:135px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
-        <th class="sortable" onclick="sortTbl('deliverables',1,this)">Deliverable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',2,this)">Due Date<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',3,this)">Accountable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',4,this)">Status<span class="sarr"></span></th>
         <th>Category</th>
+        <th class="sortable" onclick="sortTbl('deliverables',2,this)">Deliverable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',3,this)">Due Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',4,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',5,this)">Status<span class="sarr"></span></th>
         <th>Linked Meeting</th>
         <th>Outline</th><th>Deck</th><th></th>
       </tr></thead>
@@ -285,19 +290,19 @@ tr.priority-row:hover td{background:#fef9c3!important}
   <div class="card" id="risks-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Risks</span>
-      <span class="card-hdr-meta" id="risks-count">0 risks</span>
+      <div style="display:flex;align-items:center;gap:8px"><button class="grp-btn" id="risks-grp-btn" onclick="toggleGroupBy('risks',this)">Group by category</button><span class="card-hdr-meta" id="risks-count">0 risks</span></div>
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col style="width:30%"><col style="width:30%">
-        <col style="width:115px"><col style="width:95px"><col style="width:120px"><col style="width:30px">
+        <col style="width:26px"><col style="width:95px"><col style="width:28%"><col style="width:28%">
+        <col style="width:115px"><col style="width:120px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
-        <th class="sortable" onclick="sortTbl('risks',1,this)">Risk<span class="sarr"></span></th>
-        <th>Suggested Mitigation</th>
-        <th class="sortable" onclick="sortTbl('risks',3,this)">Status<span class="sarr"></span></th>
         <th>Category</th>
+        <th class="sortable" onclick="sortTbl('risks',2,this)">Risk<span class="sarr"></span></th>
+        <th>Suggested Mitigation</th>
+        <th class="sortable" onclick="sortTbl('risks',4,this)">Status<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('risks',5,this)">Accountable<span class="sarr"></span></th>
         <th></th>
       </tr></thead>
@@ -408,6 +413,27 @@ const RISK_STATUSES = [
   {label:'Closed',    bg:'#F1EFE8',fg:'#5F5E5A'},
 ];
 
+const CAT_COLORS = [
+  {bg:'#E6F1FB',fg:'#185FA5'},
+  {bg:'#EEEDFE',fg:'#534AB7'},
+  {bg:'#EAF3DE',fg:'#3B6D11'},
+  {bg:'#FAEEDA',fg:'#854F0B'},
+  {bg:'#FAECE7',fg:'#993C1D'},
+  {bg:'#E1F5EE',fg:'#0F6E56'},
+  {bg:'#F1EFE8',fg:'#5F5E5A'},
+];
+function catColor(name) {
+  if (!name) return null;
+  let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
+  return CAT_COLORS[h % CAT_COLORS.length];
+}
+function applyCatStyle(inp) {
+  const v = inp.value.trim();
+  const c = catColor(v);
+  if (c) { inp.style.background = c.bg; inp.style.color = c.fg; inp.classList.add('filled'); }
+  else   { inp.style.background = ''; inp.style.color = ''; inp.classList.remove('filled'); }
+}
+
 const ATTENDEES = [
   {name:'Jeff G',       cls:'b-blue'},
   {name:'Steve B',      cls:'b-purple'},
@@ -427,6 +453,7 @@ let saveTimer = null;
 
 // ── Archive state ─────────────────────────────────────────────────
 let archived = [];
+const groupByCat = { meetings: false, deliverables: false, risks: false };
 
 // ── Tab nav ───────────────────────────────────────────────────────
 function showTab(id, el) {
@@ -630,7 +657,10 @@ function applyState(s) {
   (s.meetings     || []).forEach(d => { const tr = makeMRow(d); document.getElementById('meetings-body').appendChild(tr); refreshRecurRows(tr); });
   (s.deliverables || []).forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
   (s.risks        || []).forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
-  ['meetings', 'deliverables', 'risks'].forEach(updateCount);
+  ['meetings', 'deliverables', 'risks'].forEach(sec => {
+    updateCount(sec);
+    if (groupByCat[sec]) applyGrouping(sec);
+  });
   updateCatList();
   renderArchive();
 }
@@ -654,17 +684,17 @@ function loadDefaults() {
 }
 
 // ── Row data collectors ───────────────────────────────────────────
-// Meetings columns: 0=pri 1=title 2=date 3=owner 4=status 5=category 6=attendees 7=agenda 8=deck 9=archive
+// Meetings columns: 0=pri 1=category 2=title 3=date 4=owner 5=status 6=attendees 7=agenda 8=deck 9=archive
 function getMRows() {
-  return [...document.querySelectorAll('#meetings-body tr:not(.recur-child)')].map(tr => {
+  return [...document.querySelectorAll('#meetings-body tr:not(.recur-child,.cat-group-hdr)')].map(tr => {
     const c = tr.querySelectorAll('td');
     const recurChildren = [];
     let sib = tr.nextElementSibling;
     while (sib && sib.classList.contains('recur-child')) {
       const cc = sib.querySelectorAll('td');
       recurChildren.push({
-        date:   cc[2].querySelector('.date-input')?.value || '',
-        status: cc[4].querySelector('.status-sel')?.value || '',
+        date:   cc[3].querySelector('.date-input')?.value || '',
+        status: cc[5].querySelector('.status-sel')?.value || '',
         agenda: cc[7].dataset.agenda || '',
         deck:   safeHref(cc[8].querySelector('.li')),
       });
@@ -672,47 +702,47 @@ function getMRows() {
     }
     return {
       priority:       tr.classList.contains('priority-row'),
-      title:          c[1].querySelector('.ce').textContent,
-      date:           c[2].querySelector('.date-input').value,
-      recurrence:     c[2].querySelector('.recur-sel')?.value || '',
+      category:       c[1].querySelector('.cat-input')?.value || '',
+      title:          c[2].querySelector('.ce').textContent,
+      date:           c[3].querySelector('.date-input').value,
+      recurrence:     c[3].querySelector('.recur-sel')?.value || '',
       recurCollapsed: tr._recurCollapsed || false,
       recurChildren,
-      owner:          c[3].querySelector('.owner-sel').value,
-      status:         c[4].querySelector('.status-sel').value,
-      category:       c[5].querySelector('.cat-input')?.value || '',
+      owner:          c[4].querySelector('.owner-sel').value,
+      status:         c[5].querySelector('.status-sel').value,
       attendees:      JSON.parse(c[6].dataset.attendees || '[]'),
       agenda:         c[7].dataset.agenda || '',
       deck:           safeHref(c[8].querySelector('.li')),
     };
   });
 }
-// Deliverables columns: 0=pri 1=title 2=date 3=owner 4=status 5=category 6=linkedMeeting 7=outline(note) 8=deck 9=archive
+// Deliverables columns: 0=pri 1=category 2=title 3=date 4=owner 5=status 6=linkedMeeting 7=outline(note) 8=deck 9=archive
 function getDRows() {
-  return [...document.querySelectorAll('#deliverables-body tr')].map(tr => {
+  return [...document.querySelectorAll('#deliverables-body tr:not(.cat-group-hdr)')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
       priority:      tr.classList.contains('priority-row'),
-      title:         c[1].querySelector('.ce').textContent,
-      date:          c[2].querySelector('.date-input').value,
-      owner:         c[3].querySelector('.owner-sel').value,
-      status:        c[4].querySelector('.status-sel').value,
-      category:      c[5].querySelector('.cat-input')?.value || '',
+      category:      c[1].querySelector('.cat-input')?.value || '',
+      title:         c[2].querySelector('.ce').textContent,
+      date:          c[3].querySelector('.date-input').value,
+      owner:         c[4].querySelector('.owner-sel').value,
+      status:        c[5].querySelector('.status-sel').value,
       linkedMeeting: c[6].querySelector('.lnk-sel').value,
       outline:       c[7].dataset.outline || '',
       deck:          safeHref(c[8].querySelector('.li')),
     };
   });
 }
-// Risks columns: 0=pri 1=risk 2=mitigation 3=status 4=category 5=owner 6=archive
+// Risks columns: 0=pri 1=category 2=risk 3=mitigation 4=status 5=owner 6=archive
 function getRRows() {
-  return [...document.querySelectorAll('#risks-body tr')].map(tr => {
+  return [...document.querySelectorAll('#risks-body tr:not(.cat-group-hdr)')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
       priority:   tr.classList.contains('priority-row'),
-      risk:       c[1].querySelector('.ce-lg').textContent,
-      mitigation: c[2].querySelector('.ce-lg').textContent,
-      status:     c[3].querySelector('.status-sel').value,
-      category:   c[4].querySelector('.cat-input')?.value || '',
+      category:   c[1].querySelector('.cat-input')?.value || '',
+      risk:       c[2].querySelector('.ce-lg').textContent,
+      mitigation: c[3].querySelector('.ce-lg').textContent,
+      status:     c[4].querySelector('.status-sel').value,
       owner:      c[5].querySelector('.owner-sel').value,
     };
   });
@@ -724,14 +754,15 @@ function safeHref(el) {
 }
 
 // ── Category cell ─────────────────────────────────────────────────
-function makeCatTd(val) {
+function makeCatTd(val, sec) {
   const td = document.createElement('td');
   const inp = document.createElement('input');
   inp.type = 'text'; inp.className = 'cat-input';
-  inp.placeholder = 'Add category'; inp.setAttribute('list', 'cat-opts');
+  inp.placeholder = 'Category'; inp.setAttribute('list', 'cat-opts');
   inp.value = val || '';
-  inp.addEventListener('change', () => { updateCatList(); save(); });
-  inp.addEventListener('blur',   () => { updateCatList(); save(); });
+  applyCatStyle(inp);
+  inp.addEventListener('change', () => { applyCatStyle(inp); updateCatList(); if (sec && groupByCat[sec]) applyGrouping(sec); save(); });
+  inp.addEventListener('blur',   () => { applyCatStyle(inp); updateCatList(); if (sec && groupByCat[sec]) applyGrouping(sec); save(); });
   td.appendChild(inp);
   return td;
 }
@@ -846,7 +877,7 @@ function makeMRow(data) {
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
-  const t5 = makeCatTd(data.category);
+  const t5 = makeCatTd(data.category, 'meetings');
   const t6att = makeAttTd(data.attendees || []);
 
   const t7ag = document.createElement('td'); t7ag.dataset.agenda = data.agenda || '';
@@ -858,7 +889,7 @@ function makeMRow(data) {
   const t8dk = document.createElement('td'); t8dk.appendChild(makeLinkCell('Working Deck', data.deck || ''));
   const t9 = makeArchBtn(tr, 'meetings');
 
-  tr.append(t0, t1, t2, t3, t4, t5, t6att, t7ag, t8dk, t9);
+  tr.append(t0, t5, t1, t2, t3, t4, t6att, t7ag, t8dk, t9);
   return tr;
 }
 
@@ -880,7 +911,7 @@ function makeDRow(data) {
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
-  const t5cat = makeCatTd(data.category);
+  const t5cat = makeCatTd(data.category, 'deliverables');
 
   const t6lnk = document.createElement('td');
   const ls = document.createElement('select'); ls.className = 'lnk-sel' + (data.linkedMeeting ? ' set' : '');
@@ -898,7 +929,7 @@ function makeDRow(data) {
   const t8dk = document.createElement('td'); t8dk.appendChild(makeLinkCell('Working Deck', data.deck || ''));
   const t9 = makeArchBtn(tr, 'deliverables');
 
-  tr.append(t0, t1, t2, t3, t4, t5cat, t6lnk, t7out, t8dk, t9);
+  tr.append(t0, t5cat, t1, t2, t3, t4, t6lnk, t7out, t8dk, t9);
   return tr;
 }
 
@@ -919,11 +950,11 @@ function makeRRow(data) {
   m.textContent = data.mitigation || ''; m.addEventListener('input', save); t2.appendChild(m);
 
   const t3 = makeStatusTd(data.status || 'Open', RISK_STATUSES);
-  const t4cat = makeCatTd(data.category);
+  const t4cat = makeCatTd(data.category, 'risks');
   const t5 = makeOwnerTd(data.owner);
   const t6 = makeArchBtn(tr, 'risks');
 
-  tr.append(t0, t1, t2, t3, t4cat, t5, t6);
+  tr.append(t0, t4cat, t1, t2, t3, t5, t6);
   return tr;
 }
 
@@ -934,11 +965,11 @@ function archiveRow(tr, section) {
   if (section === 'meetings') {
     data = {
       priority:  tr.classList.contains('priority-row'),
-      title:     c[1].querySelector('.ce').textContent,
-      date:      c[2].querySelector('.date-input').value,
-      owner:     c[3].querySelector('.owner-sel').value,
-      status:    c[4].querySelector('.status-sel').value,
-      category:  c[5].querySelector('.cat-input')?.value || '',
+      category:  c[1].querySelector('.cat-input')?.value || '',
+      title:     c[2].querySelector('.ce').textContent,
+      date:      c[3].querySelector('.date-input').value,
+      owner:     c[4].querySelector('.owner-sel').value,
+      status:    c[5].querySelector('.status-sel').value,
       attendees: JSON.parse(c[6].dataset.attendees || '[]'),
       agenda:    c[7].dataset.agenda || '',
       deck:      safeHref(c[8].querySelector('.li')),
@@ -946,11 +977,11 @@ function archiveRow(tr, section) {
   } else if (section === 'deliverables') {
     data = {
       priority:      tr.classList.contains('priority-row'),
-      title:         c[1].querySelector('.ce').textContent,
-      date:          c[2].querySelector('.date-input').value,
-      owner:         c[3].querySelector('.owner-sel').value,
-      status:        c[4].querySelector('.status-sel').value,
-      category:      c[5].querySelector('.cat-input')?.value || '',
+      category:      c[1].querySelector('.cat-input')?.value || '',
+      title:         c[2].querySelector('.ce').textContent,
+      date:          c[3].querySelector('.date-input').value,
+      owner:         c[4].querySelector('.owner-sel').value,
+      status:        c[5].querySelector('.status-sel').value,
       linkedMeeting: c[6].querySelector('.lnk-sel').value,
       outline:       c[7].dataset.outline || '',
       deck:          safeHref(c[8].querySelector('.li')),
@@ -958,10 +989,10 @@ function archiveRow(tr, section) {
   } else {
     data = {
       priority:   tr.classList.contains('priority-row'),
-      risk:       c[1].querySelector('.ce-lg').textContent,
-      mitigation: c[2].querySelector('.ce-lg').textContent,
-      status:     c[3].querySelector('.status-sel').value,
-      category:   c[4].querySelector('.cat-input')?.value || '',
+      category:   c[1].querySelector('.cat-input')?.value || '',
+      risk:       c[2].querySelector('.ce-lg').textContent,
+      mitigation: c[3].querySelector('.ce-lg').textContent,
+      status:     c[4].querySelector('.status-sel').value,
       owner:      c[5].querySelector('.owner-sel').value,
     };
   }
@@ -1132,7 +1163,7 @@ function addRow(sec) {
   updateCount(sec); save();
 }
 function updateCount(sec) {
-  const n = document.getElementById(sec + '-body').querySelectorAll('tr:not(.recur-child)').length;
+  const n = document.getElementById(sec + '-body').querySelectorAll('tr:not(.recur-child,.cat-group-hdr)').length;
   const lbl = { meetings: 'meeting', deliverables: 'deliverable', risks: 'risk' }[sec];
   document.getElementById(sec + '-count').textContent = n === 1 ? `1 ${lbl}` : `${n} ${lbl}s`;
 }
@@ -1140,12 +1171,16 @@ function updateCount(sec) {
 // ── Sort ──────────────────────────────────────────────────────────
 const sortSt = {};
 function sortTbl(sec, col, th) {
+  // Disable grouping when sorting
+  groupByCat[sec] = false;
+  const grpBtn = document.getElementById(sec + '-grp-btn');
+  if (grpBtn) grpBtn.classList.remove('active');
   const k = sec + '-' + col, prev = sortSt[k] || 0, dir = prev === 1 ? -1 : 1; sortSt[k] = dir;
   const table = document.getElementById(sec + '-body').closest('table');
   table.querySelectorAll('th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
   th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
   const tbody = document.getElementById(sec + '-body');
-  tbody.querySelectorAll('.recur-child').forEach(r => r.remove());
+  tbody.querySelectorAll('.cat-group-hdr,.recur-child').forEach(r => r.remove());
   const rows = [...tbody.querySelectorAll('tr')];
   rows.sort((a, b) => {
     const av = sortVal(a, col), bv = sortVal(b, col);
@@ -1158,6 +1193,46 @@ function sortTbl(sec, col, th) {
 function sortVal(tr, col) {
   const td = tr.querySelectorAll('td')[col]; if (!td) return '';
   return (td.querySelector('.date-input')?.value || td.querySelector('.owner-sel')?.value || td.querySelector('.status-sel')?.value || td.querySelector('.ce,.ce-lg')?.textContent || '').toLowerCase();
+}
+
+// ── Group by category ─────────────────────────────────────────────
+function toggleGroupBy(sec, btn) {
+  groupByCat[sec] = !groupByCat[sec];
+  btn.classList.toggle('active', groupByCat[sec]);
+  if (groupByCat[sec]) applyGrouping(sec);
+  else clearGrouping(sec);
+}
+function clearGrouping(sec) {
+  const tbody = document.getElementById(sec + '-body');
+  tbody.querySelectorAll('.cat-group-hdr').forEach(r => r.remove());
+  if (sec === 'meetings') tbody.querySelectorAll('tr:not(.recur-child)').forEach(r => refreshRecurRows(r));
+}
+function applyGrouping(sec) {
+  const tbody = document.getElementById(sec + '-body');
+  tbody.querySelectorAll('.cat-group-hdr').forEach(r => r.remove());
+  tbody.querySelectorAll('.recur-child').forEach(r => r.remove());
+  const rows = [...tbody.querySelectorAll('tr')];
+  const getCat = tr => tr.querySelector('td:nth-child(2) .cat-input')?.value?.trim() || '';
+  const groups = {}, groupOrder = [];
+  rows.forEach(tr => {
+    const cat = getCat(tr);
+    if (!groups[cat]) { groups[cat] = []; groupOrder.push(cat); }
+    groups[cat].push(tr);
+  });
+  groupOrder.sort((a, b) => { if (!a && b) return 1; if (a && !b) return -1; return a.localeCompare(b); });
+  const colCount = sec === 'risks' ? 7 : 10;
+  tbody.innerHTML = '';
+  groupOrder.forEach(cat => {
+    if (!groups[cat].length) return;
+    const headerTr = document.createElement('tr'); headerTr.className = 'cat-group-hdr';
+    const td = document.createElement('td'); td.colSpan = colCount;
+    td.textContent = cat || 'Uncategorized';
+    headerTr.appendChild(td); tbody.appendChild(headerTr);
+    groups[cat].forEach(tr => {
+      tbody.appendChild(tr);
+      if (sec === 'meetings') refreshRecurRows(tr);
+    });
+  });
 }
 
 // ── Note popup (shared for Agenda + Outline) ──────────────────────
@@ -1280,8 +1355,8 @@ function refreshRecurRows(parentTr, forceRecalc) {
   while (next && next.classList.contains('recur-child')) {
     const cc = next.querySelectorAll('td');
     existingData.push({
-      date:   cc[2].querySelector('.date-input')?.value || '',
-      status: cc[4].querySelector('.status-sel')?.value || '',
+      date:   cc[3].querySelector('.date-input')?.value || '',
+      status: cc[5].querySelector('.status-sel')?.value || '',
       agenda: cc[7].dataset.agenda || '',
       deck:   safeHref(cc[8].querySelector('.li')),
     });
@@ -1315,26 +1390,26 @@ function refreshRecurRows(parentTr, forceRecalc) {
 function makeRecurChildRow(title, calcDateStr, childData) {
   childData = childData || {};
   const tr = document.createElement('tr'); tr.className = 'recur-child';
-  // 10 cols matching parent: 0=pri 1=title 2=date 3=owner 4=status 5=cat 6=att 7=agenda 8=deck 9=archive
-  const t0 = document.createElement('td'); t0.className = 'pri-col';
-  const t1 = document.createElement('td');
-  t1.innerHTML = `<span class="recur-label">↳ ${title || '(untitled)'}</span>`;
-  const t2 = document.createElement('td');
+  // 10 cols matching parent: 0=pri 1=cat 2=title 3=date 4=owner 5=status 6=att 7=agenda 8=deck 9=archive
+  const t0 = document.createElement('td'); t0.className = 'pri-col';   // col 0: pri (empty)
+  const t1 = document.createElement('td');                              // col 1: cat (empty)
+  const t2 = document.createElement('td');                              // col 2: title
+  t2.innerHTML = `<span class="recur-label">↳ ${title || '(untitled)'}</span>`;
+  const t3 = document.createElement('td');                              // col 3: date
   const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input';
   di.value = childData.date || calcDateStr;
   di.addEventListener('change', save);
-  t2.appendChild(di);
-  const t3 = document.createElement('td');
-  const t4 = makeStatusTd(childData.status || '', STATUSES);
-  const t5 = document.createElement('td');
-  const t6 = document.createElement('td');
-  const t7 = document.createElement('td'); t7.dataset.agenda = childData.agenda || '';
+  t3.appendChild(di);
+  const t4 = document.createElement('td');                              // col 4: owner (empty)
+  const t5 = makeStatusTd(childData.status || '', STATUSES);            // col 5: status
+  const t6 = document.createElement('td');                              // col 6: att (empty)
+  const t7 = document.createElement('td'); t7.dataset.agenda = childData.agenda || '';  // col 7: agenda
   const ab = document.createElement('button'); ab.className = 'ag-btn' + (childData.agenda ? ' has' : ''); ab.title = 'Open agenda';
   ab.innerHTML = noteSVG();
   ab.addEventListener('click', e => { e.stopPropagation(); openNote(t7, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
   t7.appendChild(ab);
-  const t8 = document.createElement('td'); t8.appendChild(makeLinkCell('Working Deck', childData.deck || ''));
-  const t9 = document.createElement('td');
+  const t8 = document.createElement('td'); t8.appendChild(makeLinkCell('Working Deck', childData.deck || ''));  // col 8: deck
+  const t9 = document.createElement('td');                              // col 9: archive (empty)
   tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
   return tr;
 }
