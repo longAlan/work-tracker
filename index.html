@@ -129,13 +129,17 @@ tr:hover .arch-btn{opacity:1}
 .act{width:30px;text-align:center}
 
 /* recurring meetings */
-.recur-sel{-webkit-appearance:none;appearance:none;border:none;background:transparent;font-size:10px;font-family:inherit;color:#aaa;cursor:pointer;outline:none;width:100%;margin-top:2px;display:block}
+.recur-ctrl{display:flex;align-items:center;gap:4px;margin-top:2px}
+.recur-sel{-webkit-appearance:none;appearance:none;border:none;background:transparent;font-size:10px;font-family:inherit;color:#aaa;cursor:pointer;outline:none;flex:1}
 .recur-sel.active{color:#185FA5;font-weight:500}
 .recur-sel:focus{color:#1a1a18}
-tr.recur-child td{background:#fafaf8;color:#6b6b67}
+.recur-toggle{width:16px;height:16px;border-radius:3px;border:none;background:none;cursor:pointer;display:none;align-items:center;justify-content:center;color:#aaa;padding:0;flex-shrink:0;transition:transform 0.15s,color 0.15s}
+.recur-toggle.open{color:#185FA5}
+.recur-toggle.open svg{transform:rotate(90deg)}
+.recur-toggle:hover{color:#1a1a18;background:#f1efe8}
+tr.recur-child td{background:#fafaf8}
 tr.recur-child:hover td{background:#f5f4f1}
 .recur-label{font-size:11px;color:#aaa;padding-left:1.1rem;display:block}
-.recur-date-text{font-size:12px;color:#888}
 
 /* priority */
 .pri-col{width:26px;text-align:center;padding-left:4px!important;padding-right:2px!important}
@@ -645,16 +649,25 @@ function loadDefaults() {
 function getMRows() {
   return [...document.querySelectorAll('#meetings-body tr:not(.recur-child)')].map(tr => {
     const c = tr.querySelectorAll('td');
+    const recurChildren = [];
+    let sib = tr.nextElementSibling;
+    while (sib && sib.classList.contains('recur-child')) {
+      const cc = sib.querySelectorAll('td');
+      recurChildren.push({ status: cc[4].querySelector('.status-sel')?.value || '', agenda: cc[6].dataset.agenda || '' });
+      sib = sib.nextElementSibling;
+    }
     return {
-      priority:   tr.classList.contains('priority-row'),
-      title:      c[1].querySelector('.ce').textContent,
-      date:       c[2].querySelector('.date-input').value,
-      recurrence: c[2].querySelector('.recur-sel')?.value || '',
-      owner:      c[3].querySelector('.owner-sel').value,
-      status:     c[4].querySelector('.status-sel').value,
-      attendees:  JSON.parse(c[5].dataset.attendees || '[]'),
-      agenda:     c[6].dataset.agenda || '',
-      deck:       safeHref(c[7].querySelector('.li')),
+      priority:       tr.classList.contains('priority-row'),
+      title:          c[1].querySelector('.ce').textContent,
+      date:           c[2].querySelector('.date-input').value,
+      recurrence:     c[2].querySelector('.recur-sel')?.value || '',
+      recurCollapsed: tr._recurCollapsed || false,
+      recurChildren,
+      owner:          c[3].querySelector('.owner-sel').value,
+      status:         c[4].querySelector('.status-sel').value,
+      attendees:      JSON.parse(c[5].dataset.attendees || '[]'),
+      agenda:         c[6].dataset.agenda || '',
+      deck:           safeHref(c[7].querySelector('.li')),
     };
   });
 }
@@ -765,22 +778,41 @@ function makeMRow(data) {
 
   const t1 = document.createElement('td');
   const ce = document.createElement('span'); ce.className = 'ce'; ce.contentEditable = 'true'; ce.spellcheck = false;
-  ce.textContent = data.title || ''; ce.addEventListener('input', save); t1.appendChild(ce);
+  ce.textContent = data.title || '';
+  ce.addEventListener('input', () => { refreshRecurRows(tr); save(); });
+  t1.appendChild(ce);
+
+  tr._recurChildData   = data.recurChildren || [];
+  tr._recurCollapsed   = data.recurCollapsed || false;
 
   const t2 = document.createElement('td');
   const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input'; di.value = data.date || '';
+  const rc = document.createElement('div'); rc.className = 'recur-ctrl';
   const rs = document.createElement('select'); rs.className = 'recur-sel' + (data.recurrence ? ' active' : '');
   [['', 'No repeat'], ['weekly', 'Weekly'], ['biweekly', 'Bi-weekly'], ['monthly', 'Monthly'], ['daily', 'Daily']].forEach(([v, lbl]) => {
     const o = document.createElement('option'); o.value = v; o.textContent = lbl;
     if (v === (data.recurrence || '')) o.selected = true;
     rs.appendChild(o);
   });
+  const tog = document.createElement('button'); tog.className = 'recur-toggle' + (!data.recurCollapsed ? ' open' : ''); tog.title = 'Show/hide occurrences';
+  tog.innerHTML = chevronSVG(); tog.style.display = data.recurrence ? 'inline-flex' : 'none';
+  tog.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = tog.classList.toggle('open');
+    tr._recurCollapsed = !open;
+    let s = tr.nextElementSibling;
+    while (s && s.classList.contains('recur-child')) { s.style.display = open ? '' : 'none'; s = s.nextElementSibling; }
+    save();
+  });
   rs.addEventListener('change', function() {
     this.className = 'recur-sel' + (this.value ? ' active' : '');
+    tog.style.display = this.value ? 'inline-flex' : 'none';
+    if (!this.value) tog.classList.remove('open');
     refreshRecurRows(tr); save();
   });
   di.addEventListener('change', () => { refreshRecurRows(tr); save(); });
-  t2.appendChild(di); t2.appendChild(rs);
+  rc.appendChild(rs); rc.appendChild(tog);
+  t2.appendChild(di); t2.appendChild(rc);
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
@@ -1197,15 +1229,20 @@ function renderCal() {
 // ── Recurring meetings ────────────────────────────────────────────
 function refreshRecurRows(parentTr) {
   if (parentTr.classList.contains('recur-child')) return;
-  // Remove existing child rows
+  // Collect existing child data before removing
+  const existingData = [];
   let next = parentTr.nextElementSibling;
   while (next && next.classList.contains('recur-child')) {
+    const cc = next.querySelectorAll('td');
+    existingData.push({ status: cc[4].querySelector('.status-sel')?.value || '', agenda: cc[6].dataset.agenda || '' });
     const toRemove = next; next = next.nextElementSibling; toRemove.remove();
   }
-  const dateStr = parentTr.querySelector('.date-input')?.value || '';
+  const seedData = existingData.length > 0 ? existingData : (parentTr._recurChildData || []);
+  const dateStr   = parentTr.querySelector('.date-input')?.value || '';
   const recurrence = parentTr.querySelector('.recur-sel')?.value || '';
   if (!recurrence || !dateStr) return;
-  const title = parentTr.querySelector('.ce')?.textContent || '';
+  const title    = parentTr.querySelector('.ce')?.textContent || '';
+  const collapsed = parentTr._recurCollapsed || false;
   const base = new Date(dateStr + 'T00:00:00');
   let insertAfter = parentTr;
   for (let i = 1; i <= 3; i++) {
@@ -1214,23 +1251,47 @@ function refreshRecurRows(parentTr) {
     else if (recurrence === 'weekly')   d.setDate(d.getDate() + 7 * i);
     else if (recurrence === 'biweekly') d.setDate(d.getDate() + 14 * i);
     else if (recurrence === 'monthly')  d.setMonth(d.getMonth() + i);
-    const childTr = makeRecurChildRow(title, d);
+    const childTr = makeRecurChildRow(title, d, seedData[i - 1] || {});
+    if (collapsed) childTr.style.display = 'none';
     const refNode = insertAfter.nextElementSibling;
     parentTr.parentNode.insertBefore(childTr, refNode || null);
     insertAfter = childTr;
   }
 }
 
-function makeRecurChildRow(title, date) {
+function makeRecurChildRow(title, date, childData) {
+  childData = childData || {};
   const pad = n => String(n).padStart(2, '0');
   const dateStr = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
   const tr = document.createElement('tr'); tr.className = 'recur-child';
-  // 9 cols: pri | title | date | owner | status | attendees | agenda | deck | archive
-  tr.innerHTML = `
-    <td class="pri-col"></td>
-    <td><span class="recur-label">↳ ${title || '(untitled)'}</span></td>
-    <td><input type="date" class="date-input" value="${dateStr}" readonly style="opacity:0.6;cursor:default;pointer-events:none"></td>
-    <td></td><td></td><td></td><td></td><td></td><td></td>`;
+
+  // 0: pri (empty)
+  const t0 = document.createElement('td'); t0.className = 'pri-col';
+  // 1: title (read-only, indented)
+  const t1 = document.createElement('td');
+  t1.innerHTML = `<span class="recur-label">↳ ${title || '(untitled)'}</span>`;
+  // 2: date (read-only)
+  const t2 = document.createElement('td');
+  const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input';
+  di.value = dateStr; di.readOnly = true; di.style.cssText = 'opacity:0.6;cursor:default;pointer-events:none';
+  t2.appendChild(di);
+  // 3: owner (empty)
+  const t3 = document.createElement('td');
+  // 4: status (interactive)
+  const t4 = makeStatusTd(childData.status || '', STATUSES);
+  // 5: attendees (empty)
+  const t5 = document.createElement('td');
+  // 6: agenda (interactive note button)
+  const t6 = document.createElement('td'); t6.dataset.agenda = childData.agenda || '';
+  const ab = document.createElement('button'); ab.className = 'ag-btn' + (childData.agenda ? ' has' : ''); ab.title = 'Open agenda';
+  ab.innerHTML = noteSVG();
+  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
+  t6.appendChild(ab);
+  // 7: deck (empty), 8: archive (empty)
+  const t7 = document.createElement('td');
+  const t8 = document.createElement('td');
+
+  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
   return tr;
 }
 
@@ -1239,7 +1300,8 @@ function linkSVG()  { return `<svg width="10" height="10" viewBox="0 0 16 16" fi
 function pencilSVG(){ return `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5 13.5 4.5 5 13H3v-2L11.5 2.5z"/></svg>`; }
 function noteSVG()  { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>`; }
 function archSVG()  { return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="4" rx="1"/><path d="M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5"/><path d="M6.5 9.5l1.5 1.5 1.5-1.5M8 8v3"/></svg>`; }
-function starSVG()  { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.2l1.7 3.5 3.8.55-2.75 2.68.65 3.78L8 9.9l-3.4 1.81.65-3.78L2.5 5.25l3.8-.55z"/></svg>`; }
+function starSVG()   { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.2l1.7 3.5 3.8.55-2.75 2.68.65 3.78L8 9.9l-3.4 1.81.65-3.78L2.5 5.25l3.8-.55z"/></svg>`; }
+function chevronSVG(){ return `<svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>`; }
 
 // ── Utils ─────────────────────────────────────────────────────────
 function initials(n) { const p = (n || '').trim().split(/\s+/); if (!p[0]) return '?'; if (p.length === 1) return p[0].slice(0, 2).toUpperCase(); return (p[0][0] + p[p.length - 1][0]).toUpperCase(); }
