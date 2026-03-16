@@ -128,6 +128,15 @@ tr:hover .arch-btn{opacity:1}
 .arch-btn:hover{background:#FAEEDA}
 .act{width:30px;text-align:center}
 
+/* priority */
+.pri-col{width:26px;text-align:center;padding-left:4px!important;padding-right:2px!important}
+.pri-btn{opacity:0;width:20px;height:20px;border-radius:4px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#d1d5db;padding:0;flex-shrink:0;transition:opacity 0.1s,color 0.15s,background 0.1s}
+tr:hover .pri-btn{opacity:1}
+.pri-btn.on{opacity:1;color:#ca8a04}
+.pri-btn:hover{background:#fefce8}
+tr.priority-row td{background:#fefce8!important}
+tr.priority-row:hover td{background:#fef9c3!important}
+
 /* note/agenda button */
 .ag-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid #e5e3db;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b6b67;transition:all 0.15s}
 .ag-btn:hover{background:#f8f7f4}
@@ -215,14 +224,15 @@ tr:hover .arch-btn{opacity:1}
     </div>
     <table>
       <colgroup>
-        <col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:26px"><col><col style="width:105px"><col style="width:120px"><col style="width:115px">
         <col style="width:175px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
-        <th class="sortable" onclick="sortTbl('meetings',0,this)">Meeting<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',1,this)">Date<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',2,this)">Accountable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('meetings',3,this)">Status<span class="sarr"></span></th>
+        <th class="pri-col"></th>
+        <th class="sortable" onclick="sortTbl('meetings',1,this)">Meeting<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',2,this)">Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',3,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',4,this)">Status<span class="sarr"></span></th>
         <th>Client Attendees</th>
         <th>Agenda</th><th>Deck</th><th></th>
       </tr></thead>
@@ -238,14 +248,15 @@ tr:hover .arch-btn{opacity:1}
     </div>
     <table>
       <colgroup>
-        <col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:26px"><col><col style="width:105px"><col style="width:120px"><col style="width:115px">
         <col style="width:150px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
-        <th class="sortable" onclick="sortTbl('deliverables',0,this)">Deliverable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',1,this)">Due Date<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',2,this)">Accountable<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('deliverables',3,this)">Status<span class="sarr"></span></th>
+        <th class="pri-col"></th>
+        <th class="sortable" onclick="sortTbl('deliverables',1,this)">Deliverable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',2,this)">Due Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',3,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',4,this)">Status<span class="sarr"></span></th>
         <th>Linked Meeting</th>
         <th>Outline</th><th>Deck</th><th></th>
       </tr></thead>
@@ -261,14 +272,15 @@ tr:hover .arch-btn{opacity:1}
     </div>
     <table>
       <colgroup>
-        <col style="width:35%"><col style="width:35%">
+        <col style="width:26px"><col style="width:35%"><col style="width:35%">
         <col style="width:115px"><col style="width:120px"><col style="width:30px">
       </colgroup>
       <thead><tr>
-        <th class="sortable" onclick="sortTbl('risks',0,this)">Risk<span class="sarr"></span></th>
+        <th class="pri-col"></th>
+        <th class="sortable" onclick="sortTbl('risks',1,this)">Risk<span class="sarr"></span></th>
         <th>Suggested Mitigation</th>
-        <th class="sortable" onclick="sortTbl('risks',2,this)">Status<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('risks',3,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('risks',3,this)">Status<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('risks',4,this)">Accountable<span class="sarr"></span></th>
         <th></th>
       </tr></thead>
       <tbody id="risks-body"></tbody>
@@ -362,7 +374,6 @@ const OWNERS = ['','Alan','Ramya','Aarthi','Xin Yi','Nikhil'];
 
 const STATUSES = [
   {label:'Not started',bg:'#F1EFE8',fg:'#5F5E5A'},
-  {label:'In prep',    bg:'#FAEEDA',fg:'#854F0B'},
   {label:'In progress',bg:'#E6F1FB',fg:'#185FA5'},
   {label:'On track',  bg:'#EAF3DE',fg:'#3B6D11'},
   {label:'At risk',   bg:'#FAEEDA',fg:'#854F0B'},
@@ -386,8 +397,11 @@ const ATTENDEES = [
 ];
 
 // ── JSONBin config ────────────────────────────────────────────────
-let JB_KEY = localStorage.getItem('jb_key') || '';
+// Set TEAM_KEY once so teammates auto-connect without entering the master key
+const TEAM_KEY = '';
+let JB_KEY = localStorage.getItem('jb_key') || TEAM_KEY;
 let JB_BIN = localStorage.getItem('jb_bin') || '';
+if (TEAM_KEY && !localStorage.getItem('jb_key')) localStorage.setItem('jb_key', TEAM_KEY);
 const JB_BASE = 'https://api.jsonbin.io/v3';
 let saveTimer = null;
 
@@ -425,7 +439,7 @@ function setSP(s, detail) {
 
 // ── Setup overlay ─────────────────────────────────────────────────
 function openSetup() {
-  document.getElementById('jb-key-inp').value = JB_KEY;
+  document.getElementById('jb-key-inp').value = JB_KEY || TEAM_KEY;
   document.getElementById('jb-bin-inp').value = JB_BIN;
   document.getElementById('diag-results').style.display = 'none';
   document.getElementById('setup-overlay').classList.add('open');
@@ -618,44 +632,48 @@ function loadDefaults() {
 }
 
 // ── Row data collectors ───────────────────────────────────────────
-// Meetings columns: 0=title 1=date 2=owner 3=status 4=attendees 5=agenda 6=deck 7=archive
+// Meetings columns: 0=pri 1=title 2=date 3=owner 4=status 5=attendees 6=agenda 7=deck 8=archive
 function getMRows() {
   return [...document.querySelectorAll('#meetings-body tr')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
-      title:     c[0].querySelector('.ce').textContent,
-      date:      c[1].querySelector('.date-input').value,
-      owner:     c[2].querySelector('.owner-sel').value,
-      status:    c[3].querySelector('.status-sel').value,
-      attendees: JSON.parse(c[4].dataset.attendees || '[]'),
-      agenda:    c[5].dataset.agenda || '',
-      deck:      safeHref(c[6].querySelector('.li')),
+      priority:  tr.classList.contains('priority-row'),
+      title:     c[1].querySelector('.ce').textContent,
+      date:      c[2].querySelector('.date-input').value,
+      owner:     c[3].querySelector('.owner-sel').value,
+      status:    c[4].querySelector('.status-sel').value,
+      attendees: JSON.parse(c[5].dataset.attendees || '[]'),
+      agenda:    c[6].dataset.agenda || '',
+      deck:      safeHref(c[7].querySelector('.li')),
     };
   });
 }
-// Deliverables columns: 0=title 1=date 2=owner 3=status 4=linkedMeeting 5=outline(note) 6=deck 7=archive
+// Deliverables columns: 0=pri 1=title 2=date 3=owner 4=status 5=linkedMeeting 6=outline(note) 7=deck 8=archive
 function getDRows() {
   return [...document.querySelectorAll('#deliverables-body tr')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
-      title:         c[0].querySelector('.ce').textContent,
-      date:          c[1].querySelector('.date-input').value,
-      owner:         c[2].querySelector('.owner-sel').value,
-      status:        c[3].querySelector('.status-sel').value,
-      linkedMeeting: c[4].querySelector('.lnk-sel').value,
-      outline:       c[5].dataset.outline || '',
-      deck:          safeHref(c[6].querySelector('.li')),
+      priority:      tr.classList.contains('priority-row'),
+      title:         c[1].querySelector('.ce').textContent,
+      date:          c[2].querySelector('.date-input').value,
+      owner:         c[3].querySelector('.owner-sel').value,
+      status:        c[4].querySelector('.status-sel').value,
+      linkedMeeting: c[5].querySelector('.lnk-sel').value,
+      outline:       c[6].dataset.outline || '',
+      deck:          safeHref(c[7].querySelector('.li')),
     };
   });
 }
+// Risks columns: 0=pri 1=risk 2=mitigation 3=status 4=owner 5=archive
 function getRRows() {
   return [...document.querySelectorAll('#risks-body tr')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
-      risk:       c[0].querySelector('.ce-lg').textContent,
-      mitigation: c[1].querySelector('.ce-lg').textContent,
-      status:     c[2].querySelector('.status-sel').value,
-      owner:      c[3].querySelector('.owner-sel').value,
+      priority:   tr.classList.contains('priority-row'),
+      risk:       c[1].querySelector('.ce-lg').textContent,
+      mitigation: c[2].querySelector('.ce-lg').textContent,
+      status:     c[3].querySelector('.status-sel').value,
+      owner:      c[4].querySelector('.owner-sel').value,
     };
   });
 }
@@ -701,6 +719,22 @@ function makeStatusTd(val, list) {
   td.appendChild(sel); return td;
 }
 
+// ── Priority button helper ────────────────────────────────────────
+function makePriTd(tr, isPriority) {
+  const td = document.createElement('td'); td.className = 'pri-col';
+  const btn = document.createElement('button'); btn.className = 'pri-btn' + (isPriority ? ' on' : ''); btn.title = 'Toggle priority';
+  btn.innerHTML = starSVG();
+  if (isPriority) tr.classList.add('priority-row');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOn = btn.classList.toggle('on');
+    tr.classList.toggle('priority-row', isOn);
+    save();
+  });
+  td.appendChild(btn);
+  return td;
+}
+
 // ── Archive button helper ─────────────────────────────────────────
 function makeArchBtn(tr, section) {
   const td = document.createElement('td'); td.className = 'act';
@@ -712,10 +746,12 @@ function makeArchBtn(tr, section) {
 }
 
 // ── Meeting row ───────────────────────────────────────────────────
-// Columns: title | date | owner | status | attendees | agenda | deck | archive
+// Columns: 0=pri | 1=title | 2=date | 3=owner | 4=status | 5=attendees | 6=agenda | 7=deck | 8=archive
 function makeMRow(data) {
   data = data || {};
   const tr = document.createElement('tr');
+
+  const t0 = makePriTd(tr, !!data.priority);
 
   const t1 = document.createElement('td');
   const ce = document.createElement('span'); ce.className = 'ce'; ce.contentEditable = 'true'; ce.spellcheck = false;
@@ -738,15 +774,17 @@ function makeMRow(data) {
   const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
   const t8 = makeArchBtn(tr, 'meetings');
 
-  tr.append(t1, t2, t3, t4, t5, t6, t7, t8);
+  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
   return tr;
 }
 
 // ── Deliverable row ───────────────────────────────────────────────
-// Columns: title | date | owner | status | linkedMeeting | outline(note) | deck | archive
+// Columns: 0=pri | 1=title | 2=date | 3=owner | 4=status | 5=linkedMeeting | 6=outline(note) | 7=deck | 8=archive
 function makeDRow(data) {
   data = data || {};
   const tr = document.createElement('tr');
+
+  const t0 = makePriTd(tr, !!data.priority);
 
   const t1 = document.createElement('td');
   const ce = document.createElement('span'); ce.className = 'ce'; ce.contentEditable = 'true'; ce.spellcheck = false;
@@ -766,7 +804,6 @@ function makeDRow(data) {
   fillLinkedSel(ls, data.linkedMeeting || '');
   t5.appendChild(ls);
 
-  // Outline as note (same format as Agenda)
   const t6 = document.createElement('td'); t6.dataset.outline = data.outline || '';
   const ob = document.createElement('button'); ob.className = 'ag-btn' + (data.outline ? ' has' : ''); ob.title = 'Open outline';
   ob.innerHTML = noteSVG();
@@ -776,14 +813,17 @@ function makeDRow(data) {
   const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
   const t8 = makeArchBtn(tr, 'deliverables');
 
-  tr.append(t1, t2, t3, t4, t5, t6, t7, t8);
+  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
   return tr;
 }
 
 // ── Risk row ──────────────────────────────────────────────────────
+// Columns: 0=pri | 1=risk | 2=mitigation | 3=status | 4=owner | 5=archive
 function makeRRow(data) {
   data = data || {};
   const tr = document.createElement('tr');
+
+  const t0 = makePriTd(tr, !!data.priority);
 
   const t1 = document.createElement('td');
   const r = document.createElement('span'); r.className = 'ce-lg'; r.contentEditable = 'true'; r.spellcheck = false;
@@ -797,7 +837,7 @@ function makeRRow(data) {
   const t4 = makeOwnerTd(data.owner);
   const t5 = makeArchBtn(tr, 'risks');
 
-  tr.append(t1, t2, t3, t4, t5);
+  tr.append(t0, t1, t2, t3, t4, t5);
   return tr;
 }
 
@@ -807,30 +847,33 @@ function archiveRow(tr, section) {
   let data;
   if (section === 'meetings') {
     data = {
-      title:     c[0].querySelector('.ce').textContent,
-      date:      c[1].querySelector('.date-input').value,
-      owner:     c[2].querySelector('.owner-sel').value,
-      status:    c[3].querySelector('.status-sel').value,
-      attendees: JSON.parse(c[4].dataset.attendees || '[]'),
-      agenda:    c[5].dataset.agenda || '',
-      deck:      safeHref(c[6].querySelector('.li')),
+      priority:  tr.classList.contains('priority-row'),
+      title:     c[1].querySelector('.ce').textContent,
+      date:      c[2].querySelector('.date-input').value,
+      owner:     c[3].querySelector('.owner-sel').value,
+      status:    c[4].querySelector('.status-sel').value,
+      attendees: JSON.parse(c[5].dataset.attendees || '[]'),
+      agenda:    c[6].dataset.agenda || '',
+      deck:      safeHref(c[7].querySelector('.li')),
     };
   } else if (section === 'deliverables') {
     data = {
-      title:         c[0].querySelector('.ce').textContent,
-      date:          c[1].querySelector('.date-input').value,
-      owner:         c[2].querySelector('.owner-sel').value,
-      status:        c[3].querySelector('.status-sel').value,
-      linkedMeeting: c[4].querySelector('.lnk-sel').value,
-      outline:       c[5].dataset.outline || '',
-      deck:          safeHref(c[6].querySelector('.li')),
+      priority:      tr.classList.contains('priority-row'),
+      title:         c[1].querySelector('.ce').textContent,
+      date:          c[2].querySelector('.date-input').value,
+      owner:         c[3].querySelector('.owner-sel').value,
+      status:        c[4].querySelector('.status-sel').value,
+      linkedMeeting: c[5].querySelector('.lnk-sel').value,
+      outline:       c[6].dataset.outline || '',
+      deck:          safeHref(c[7].querySelector('.li')),
     };
   } else {
     data = {
-      risk:       c[0].querySelector('.ce-lg').textContent,
-      mitigation: c[1].querySelector('.ce-lg').textContent,
-      status:     c[2].querySelector('.status-sel').value,
-      owner:      c[3].querySelector('.owner-sel').value,
+      priority:   tr.classList.contains('priority-row'),
+      risk:       c[1].querySelector('.ce-lg').textContent,
+      mitigation: c[2].querySelector('.ce-lg').textContent,
+      status:     c[3].querySelector('.status-sel').value,
+      owner:      c[4].querySelector('.owner-sel').value,
     };
   }
   archived.push({ sec: section, data });
@@ -1131,6 +1174,7 @@ function linkSVG()  { return `<svg width="10" height="10" viewBox="0 0 16 16" fi
 function pencilSVG(){ return `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5 13.5 4.5 5 13H3v-2L11.5 2.5z"/></svg>`; }
 function noteSVG()  { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>`; }
 function archSVG()  { return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="4" rx="1"/><path d="M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5"/><path d="M6.5 9.5l1.5 1.5 1.5-1.5M8 8v3"/></svg>`; }
+function starSVG()  { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.2l1.7 3.5 3.8.55-2.75 2.68.65 3.78L8 9.9l-3.4 1.81.65-3.78L2.5 5.25l3.8-.55z"/></svg>`; }
 
 // ── Utils ─────────────────────────────────────────────────────────
 function initials(n) { const p = (n || '').trim().split(/\s+/); if (!p[0]) return '?'; if (p.length === 1) return p[0].slice(0, 2).toUpperCase(); return (p[0][0] + p[p.length - 1][0]).toUpperCase(); }
