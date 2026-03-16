@@ -18,6 +18,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sp-saving{background:#FAEEDA;color:#854F0B}
 .sp-saved{background:#EAF3DE;color:#3B6D11}
 .sp-error{background:#FCEBEB;color:#A32D2D;cursor:pointer}
+.sp-warn{background:#FAEEDA;color:#854F0B}
 .cfg-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid #c8c6bc;background:#fff;color:#6b6b67;cursor:pointer}
 .cfg-btn:hover{background:#f8f7f4;color:#1a1a18}
 
@@ -31,9 +32,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pane{display:none;padding:1.25rem 1.5rem;background:#f8f7f4;min-height:600px}
 .pane.active{display:block}
 
-/* sections & cards */
-.section-label{font-size:11px;font-weight:500;color:#6b6b67;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;margin-top:1.5rem}
-.section-label:first-child{margin-top:0}
+/* cards */
 .card{background:#fff;border:0.5px solid #e5e3db;border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
 .card-hdr{padding:0.6rem 1rem;background:#f8f7f4;border-bottom:0.5px solid #e5e3db;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap}
 .card-hdr-title{font-size:13px;font-weight:500;color:#1a1a18;outline:none}
@@ -122,21 +121,23 @@ tr:hover td{background:#fafaf8}
 /* add row */
 .add-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;font-size:12px;color:#6b6b67;border:0.5px dashed #c8c6bc;border-radius:8px;cursor:pointer;background:none;margin:0.5rem 0.75rem;transition:all 0.15s}
 .add-btn:hover{background:#f8f7f4;border-color:#88877f;color:#1a1a18}
-.del-btn{opacity:0;width:20px;height:20px;border-radius:4px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#A32D2D;font-size:14px;padding:0;flex-shrink:0}
-tr:hover .del-btn{opacity:1}
-.del-btn:hover{background:#FCEBEB}
+
+/* archive button (replaces delete on main rows) */
+.arch-btn{opacity:0;width:20px;height:20px;border-radius:4px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#854F0B;padding:0;flex-shrink:0;transition:opacity 0.1s,background 0.1s}
+tr:hover .arch-btn{opacity:1}
+.arch-btn:hover{background:#FAEEDA}
 .act{width:30px;text-align:center}
 
-/* agenda */
+/* note/agenda button */
 .ag-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid #e5e3db;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b6b67;transition:all 0.15s}
 .ag-btn:hover{background:#f8f7f4}
 .ag-btn.has{background:#fffef0;border-color:#e5d96b;color:#93790a}
-#ag-popup{display:none;position:fixed;background:#fffef0;border:1px solid #e5d96b;border-radius:8px;box-shadow:3px 5px 20px rgba(0,0,0,0.15);width:300px;z-index:150;flex-direction:column}
-#ag-popup.open{display:flex}
+#note-popup{display:none;position:fixed;background:#fffef0;border:1px solid #e5d96b;border-radius:8px;box-shadow:3px 5px 20px rgba(0,0,0,0.15);width:300px;z-index:150;flex-direction:column}
+#note-popup.open{display:flex}
 .ag-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #e5d96b;font-size:12px;font-weight:500;color:#93790a;background:#fefce8;border-radius:7px 7px 0 0}
 .ag-hdr button{background:none;border:none;cursor:pointer;color:#93790a;font-size:16px;line-height:1;padding:0 2px}
 .ag-hdr button:hover{color:#1a1a18}
-#ag-ta{width:100%;min-height:180px;border:none;background:transparent;resize:vertical;font-family:inherit;font-size:13px;padding:10px 12px;outline:none;color:#1a1a18;line-height:1.6}
+#note-ta{width:100%;min-height:180px;border:none;background:transparent;resize:vertical;font-family:inherit;font-size:13px;padding:10px 12px;outline:none;color:#1a1a18;line-height:1.6}
 
 /* calendar */
 .cal-nav{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem}
@@ -155,6 +156,14 @@ tr:hover .del-btn{opacity:1}
 .cal-ev{font-size:10px;padding:1px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
 .cal-ev-m{background:#E6F1FB;color:#185FA5}
 .cal-ev-d{background:#FAEEDA;color:#854F0B}
+
+/* archive pane */
+.arc-empty{text-align:center;color:#6b6b67;font-size:13px;padding:3rem 1rem}
+.arc-restore-btn{padding:2px 8px;font-size:11px;border-radius:6px;border:0.5px solid #3B6D11;background:#EAF3DE;color:#3B6D11;cursor:pointer;white-space:nowrap}
+.arc-restore-btn:hover{background:#d0ecc0}
+.arc-del-btn{padding:2px 8px;font-size:11px;border-radius:6px;border:0.5px solid #A32D2D;background:#FCEBEB;color:#A32D2D;cursor:pointer;white-space:nowrap}
+.arc-del-btn:hover{background:#f5d0d0}
+.arc-actions{display:flex;gap:5px;align-items:center}
 
 /* setup overlay */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;align-items:center;justify-content:center}
@@ -193,12 +202,12 @@ tr:hover .del-btn{opacity:1}
 <div class="tabs">
   <div class="tab active" onclick="showTab('tracker',this)">Tracker</div>
   <div class="tab" onclick="showTab('calendar',this)">Calendar</div>
+  <div class="tab" onclick="showTab('archive',this)">Archive</div>
 </div>
 
 <!-- TRACKER PANE -->
 <div id="pane-tracker" class="pane active">
 
-  <div class="section-label">Special Meetings</div>
   <div class="card" id="meetings-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Special Meetings</span>
@@ -206,15 +215,15 @@ tr:hover .del-btn{opacity:1}
     </div>
     <table>
       <colgroup>
-        <col><col style="width:105px"><col style="width:120px"><col style="width:195px">
-        <col style="width:115px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+        <col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:175px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTbl('meetings',0,this)">Meeting<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('meetings',1,this)">Date<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('meetings',2,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',3,this)">Status<span class="sarr"></span></th>
         <th>Client Attendees</th>
-        <th class="sortable" onclick="sortTbl('meetings',4,this)">Status<span class="sarr"></span></th>
         <th>Agenda</th><th>Deck</th><th></th>
       </tr></thead>
       <tbody id="meetings-body"></tbody>
@@ -222,7 +231,6 @@ tr:hover .del-btn{opacity:1}
     <button class="add-btn" onclick="addRow('meetings')">+ Add meeting</button>
   </div>
 
-  <div class="section-label">Deliverables</div>
   <div class="card" id="deliverables-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Deliverables</span>
@@ -246,7 +254,6 @@ tr:hover .del-btn{opacity:1}
     <button class="add-btn" onclick="addRow('deliverables')">+ Add deliverable</button>
   </div>
 
-  <div class="section-label">Risks</div>
   <div class="card" id="risks-card">
     <div class="card-hdr">
       <span class="card-hdr-title" contenteditable="true" spellcheck="false">Risks</span>
@@ -285,13 +292,18 @@ tr:hover .del-btn{opacity:1}
   <div id="cal-grid"></div>
 </div>
 
-<!-- Agenda popup -->
-<div id="ag-popup">
+<!-- ARCHIVE PANE -->
+<div id="pane-archive" class="pane">
+  <div class="arc-empty">No archived items</div>
+</div>
+
+<!-- Note popup (shared for Agenda + Outline) -->
+<div id="note-popup">
   <div class="ag-hdr">
-    <span>&#128203; Agenda</span>
-    <button onclick="closeAg()">&#x2715;</button>
+    <span id="note-popup-title">&#128203; Agenda</span>
+    <button onclick="closeNote()">&#x2715;</button>
   </div>
-  <textarea id="ag-ta" placeholder="Add agenda items...&#10;&#10;1. &#10;2. &#10;3. "></textarea>
+  <textarea id="note-ta" placeholder="Add notes...&#10;&#10;1. &#10;2. &#10;3. "></textarea>
 </div>
 
 <!-- Link popup template -->
@@ -305,6 +317,18 @@ tr:hover .del-btn{opacity:1}
     </div>
   </div>
 </template>
+
+<!-- Delete confirm overlay -->
+<div class="overlay" id="del-conf-overlay">
+  <div class="ov-box" style="max-width:360px">
+    <h2 style="margin-bottom:0.75rem">Delete permanently?</h2>
+    <p>This item will be removed and cannot be recovered.</p>
+    <div class="ov-actions">
+      <button class="pbtn" onclick="closeDelConf()">Cancel</button>
+      <button class="pbtn p" id="del-conf-btn" style="background:#A32D2D;border-color:#A32D2D">Delete</button>
+    </div>
+  </div>
+</div>
 
 <!-- Setup overlay -->
 <div class="overlay" id="setup-overlay">
@@ -367,19 +391,23 @@ let JB_BIN = localStorage.getItem('jb_bin') || '';
 const JB_BASE = 'https://api.jsonbin.io/v3';
 let saveTimer = null;
 
+// ── Archive state ─────────────────────────────────────────────────
+let archived = [];
+
 // ── Tab nav ───────────────────────────────────────────────────────
-function showTab(id,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById('pane-'+id).classList.add('active');
+function showTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
   el.classList.add('active');
-  if(id==='calendar') renderCal();
+  if (id === 'calendar') renderCal();
+  if (id === 'archive') renderArchive();
 }
 
 // ── Status badge ──────────────────────────────────────────────────
-function setSP(s, detail){
-  const el=document.getElementById('sp-badge');
-  const m={
+function setSP(s, detail) {
+  const el = document.getElementById('sp-badge');
+  const m = {
     idle:    ['sp-idle',  'Ready'],
     loading: ['sp-saving','Loading...'],
     saving:  ['sp-saving','Saving...'],
@@ -388,219 +416,242 @@ function setSP(s, detail){
     error:   ['sp-error', 'Error — click to diagnose'],
     nokey:   ['sp-idle',  'Not connected'],
   };
-  const[cls,txt]=m[s]||m.idle;
-  el.className='sp-badge '+cls;
-  el.textContent=detail||(m[s]||m.idle)[1];
-  el.title=detail||'';
-  el.onclick=s==='error'?()=>{openSetup();runDiagnostic();}:null;
+  const [cls, txt] = m[s] || m.idle;
+  el.className = 'sp-badge ' + cls;
+  el.textContent = detail || (m[s] || m.idle)[1];
+  el.title = detail || '';
+  el.onclick = s === 'error' ? () => { openSetup(); runDiagnostic(); } : null;
 }
-document.head.insertAdjacentHTML('beforeend','<style>.sp-warn{background:#FAEEDA;color:#854F0B}</style>');
 
 // ── Setup overlay ─────────────────────────────────────────────────
-function openSetup(){
-  document.getElementById('jb-key-inp').value=JB_KEY;
-  document.getElementById('jb-bin-inp').value=JB_BIN;
-  document.getElementById('diag-results').style.display='none';
+function openSetup() {
+  document.getElementById('jb-key-inp').value = JB_KEY;
+  document.getElementById('jb-bin-inp').value = JB_BIN;
+  document.getElementById('diag-results').style.display = 'none';
   document.getElementById('setup-overlay').classList.add('open');
 }
-function closeSetup(){document.getElementById('setup-overlay').classList.remove('open');}
-function saveSetup(){
-  const key=document.getElementById('jb-key-inp').value.trim();
-  const bin=document.getElementById('jb-bin-inp').value.trim();
-  if(!key){alert('Please enter your JSONBin Master Key.');return;}
-  JB_KEY=key; JB_BIN=bin;
-  localStorage.setItem('jb_key',JB_KEY);
-  localStorage.setItem('jb_bin',JB_BIN);
+function closeSetup() { document.getElementById('setup-overlay').classList.remove('open'); }
+function saveSetup() {
+  const key = document.getElementById('jb-key-inp').value.trim();
+  const bin = document.getElementById('jb-bin-inp').value.trim();
+  if (!key) { alert('Please enter your JSONBin Master Key.'); return; }
+  JB_KEY = key; JB_BIN = bin;
+  localStorage.setItem('jb_key', JB_KEY);
+  localStorage.setItem('jb_bin', JB_BIN);
   closeSetup(); init();
 }
-document.getElementById('setup-overlay').addEventListener('click',e=>{if(e.target.id==='setup-overlay')closeSetup();});
+document.getElementById('setup-overlay').addEventListener('click', e => { if (e.target.id === 'setup-overlay') closeSetup(); });
+
+// ── Delete confirm overlay ────────────────────────────────────────
+let pendingDelIdx = null;
+function openDelConf(idx) {
+  pendingDelIdx = idx;
+  document.getElementById('del-conf-overlay').classList.add('open');
+}
+function closeDelConf() {
+  pendingDelIdx = null;
+  document.getElementById('del-conf-overlay').classList.remove('open');
+}
+document.getElementById('del-conf-overlay').addEventListener('click', e => { if (e.target.id === 'del-conf-overlay') closeDelConf(); });
+document.getElementById('del-conf-btn').addEventListener('click', () => {
+  if (pendingDelIdx !== null) {
+    archived.splice(pendingDelIdx, 1);
+    renderArchive();
+    save();
+  }
+  closeDelConf();
+});
 
 // ── JSONBin helpers ───────────────────────────────────────────────
-function jbHeaders(){
-  return {'Content-Type':'application/json','X-Master-Key':JB_KEY,'X-Bin-Versioning':'false'};
+function jbHeaders() {
+  return { 'Content-Type': 'application/json', 'X-Master-Key': JB_KEY, 'X-Bin-Versioning': 'false' };
 }
 
-async function jbLoad(){
+async function jbLoad() {
   setSP('loading');
-  try{localStorage.setItem('wt_local',localStorage.getItem('wt_local')||'');}catch(e){}
-  if(!JB_KEY){loadFromLocalOrDefaults();setSP('nokey');openSetup();return;}
-  try{
-    if(!JB_BIN){loadFromLocalOrDefaults();setSP('local','No bin yet — will create on first save');return;}
-    const r=await fetch(`${JB_BASE}/b/${JB_BIN}/latest`,{headers:jbHeaders()});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const j=await r.json();
+  try { localStorage.setItem('wt_local', localStorage.getItem('wt_local') || ''); } catch(e) {}
+  if (!JB_KEY) { loadFromLocalOrDefaults(); setSP('nokey'); openSetup(); return; }
+  try {
+    if (!JB_BIN) { loadFromLocalOrDefaults(); setSP('local', 'No bin yet — will create on first save'); return; }
+    const r = await fetch(`${JB_BASE}/b/${JB_BIN}/latest`, { headers: jbHeaders() });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
     applyState(j.record);
     setSP('saved');
-  }catch(e){
-    console.error('[JB load]',e);
-    setSP('error',e.message);
+  } catch(e) {
+    console.error('[JB load]', e);
+    setSP('error', e.message);
     loadFromLocalOrDefaults();
   }
 }
 
-function loadFromLocalOrDefaults(){
-  try{const raw=localStorage.getItem('wt_local');if(raw){applyState(JSON.parse(raw));return;}}catch(e){}
+function loadFromLocalOrDefaults() {
+  try { const raw = localStorage.getItem('wt_local'); if (raw) { applyState(JSON.parse(raw)); return; } } catch(e) {}
   loadDefaults();
 }
 
-function save(){
-  clearTimeout(saveTimer);setSP('saving');
-  saveTimer=setTimeout(doSave,1500);
+function save() {
+  clearTimeout(saveTimer); setSP('saving');
+  saveTimer = setTimeout(doSave, 1500);
 }
 
-async function doSave(){
-  const state=collectState();
-  // Always save locally first
-  try{localStorage.setItem('wt_local',JSON.stringify(state));}catch(e){}
-  if(!JB_KEY){setSP('local','Saved locally — add a JSONBin key in Setup to share with team');return;}
+async function doSave() {
+  const state = collectState();
+  try { localStorage.setItem('wt_local', JSON.stringify(state)); } catch(e) {}
+  if (!JB_KEY) { setSP('local', 'Saved locally — add a JSONBin key in Setup to share with team'); return; }
   setSP('saving');
-  try{
-    if(JB_BIN){
-      // Update existing bin
-      const r=await fetch(`${JB_BASE}/b/${JB_BIN}`,{method:'PUT',headers:jbHeaders(),body:JSON.stringify(state)});
-      if(!r.ok)throw new Error('HTTP '+r.status);
-    }else{
-      // Create new bin
-      const r=await fetch(`${JB_BASE}/b`,{method:'POST',headers:{...jbHeaders(),'X-Bin-Name':'work-tracker','X-Bin-Private':'true'},body:JSON.stringify(state)});
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      const j=await r.json();
-      JB_BIN=j.metadata.id;
-      localStorage.setItem('jb_bin',JB_BIN);
-      // Show bin ID prominently so user can share it
+  try {
+    if (JB_BIN) {
+      const r = await fetch(`${JB_BASE}/b/${JB_BIN}`, { method: 'PUT', headers: jbHeaders(), body: JSON.stringify(state) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    } else {
+      const r = await fetch(`${JB_BASE}/b`, { method: 'POST', headers: { ...jbHeaders(), 'X-Bin-Name': 'work-tracker', 'X-Bin-Private': 'true' }, body: JSON.stringify(state) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      JB_BIN = j.metadata.id;
+      localStorage.setItem('jb_bin', JB_BIN);
       showBinCreated(JB_BIN);
     }
     setSP('saved');
-  }catch(e){console.error('[JB save]',e);setSP('error',e.message);}
+  } catch(e) { console.error('[JB save]', e); setSP('error', e.message); }
 }
 
-function showBinCreated(binId){
-  // Brief banner showing the bin ID for sharing
-  const el=document.createElement('div');
-  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#EAF3DE;border:1px solid #3B6D11;color:#1a1a18;border-radius:10px;padding:12px 20px;font-size:13px;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.12);max-width:420px;text-align:center;line-height:1.6';
-  el.innerHTML=`<strong>Bin created!</strong> Share this Bin ID with your team:<br><code style="background:#fff;padding:2px 8px;border-radius:4px;font-size:13px;user-select:all">${binId}</code><br><span style="font-size:11px;color:#6b6b67">They paste it in ⚙ Setup → Bin ID</span>`;
+function showBinCreated(binId) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#EAF3DE;border:1px solid #3B6D11;color:#1a1a18;border-radius:10px;padding:12px 20px;font-size:13px;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.12);max-width:420px;text-align:center;line-height:1.6';
+  el.innerHTML = `<strong>Bin created!</strong> Share this Bin ID with your team:<br><code style="background:#fff;padding:2px 8px;border-radius:4px;font-size:13px;user-select:all">${binId}</code><br><span style="font-size:11px;color:#6b6b67">They paste it in ⚙ Setup → Bin ID</span>`;
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(),12000);
+  setTimeout(() => el.remove(), 12000);
 }
 
-// ── Diagnostic (JSONBin) ──────────────────────────────────────────
-async function runDiagnostic(){
-  const box=document.getElementById('diag-results');
-  box.style.display='block'; box.innerHTML='';
-  const key=document.getElementById('jb-key-inp').value.trim();
-  const bin=document.getElementById('jb-bin-inp').value.trim();
+// ── Diagnostic ────────────────────────────────────────────────────
+async function runDiagnostic() {
+  const box = document.getElementById('diag-results');
+  box.style.display = 'block'; box.innerHTML = '';
+  const key = document.getElementById('jb-key-inp').value.trim();
+  const bin = document.getElementById('jb-bin-inp').value.trim();
 
-  function row(icon,cls,label,msg){
-    const d=document.createElement('div'); d.className='diag-row';
-    d.innerHTML=`<span class="diag-icon ${cls}">${icon}</span><div><div class="diag-label">${label}</div>${msg?`<div class="diag-msg">${msg}</div>`:''}</div>`;
+  function row(icon, cls, label, msg) {
+    const d = document.createElement('div'); d.className = 'diag-row';
+    d.innerHTML = `<span class="diag-icon ${cls}">${icon}</span><div><div class="diag-label">${label}</div>${msg ? `<div class="diag-msg">${msg}</div>` : ''}</div>`;
     box.appendChild(d);
   }
-  function pending(label){
-    const d=document.createElement('div'); d.className='diag-row';
-    d.innerHTML=`<span class="diag-icon">&#8987;</span><div class="diag-label">${label}</div>`;
+  function pending(label) {
+    const d = document.createElement('div'); d.className = 'diag-row';
+    d.innerHTML = `<span class="diag-icon">&#8987;</span><div class="diag-label">${label}</div>`;
     box.appendChild(d); return d;
   }
 
-  if(!key){row('✗','diag-fail','No Master Key entered','Paste your JSONBin Master Key above.');return;}
-  row('✓','diag-pass','Master Key entered','');
+  if (!key) { row('✗', 'diag-fail', 'No Master Key entered', 'Paste your JSONBin Master Key above.'); return; }
+  row('✓', 'diag-pass', 'Master Key entered', '');
 
-  const p=pending('Testing key with JSONBin API...');
-  try{
-    const r=await fetch(`${JB_BASE}/b`,{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'test-ping','X-Bin-Private':'true'},body:'{"ping":true}'});
+  const p = pending('Testing key with JSONBin API...');
+  try {
+    const r = await fetch(`${JB_BASE}/b`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Name': 'test-ping', 'X-Bin-Private': 'true' }, body: '{"ping":true}' });
     p.remove();
-    if(r.status===401){row('✗','diag-fail','Invalid Master Key','Double-check you copied the Master Key (not the Access Key) from jsonbin.io → API Keys.');return;}
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const j=await r.json();
-    // Delete the test bin immediately
-    fetch(`${JB_BASE}/b/${j.metadata.id}`,{method:'DELETE',headers:{'X-Master-Key':key}});
-    row('✓','diag-pass','Master Key is valid','');
-  }catch(e){p.remove();row('✗','diag-fail','Request failed',e.message);return;}
+    if (r.status === 401) { row('✗', 'diag-fail', 'Invalid Master Key', 'Double-check you copied the Master Key from jsonbin.io → API Keys.'); return; }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    fetch(`${JB_BASE}/b/${j.metadata.id}`, { method: 'DELETE', headers: { 'X-Master-Key': key } });
+    row('✓', 'diag-pass', 'Master Key is valid', '');
+  } catch(e) { p.remove(); row('✗', 'diag-fail', 'Request failed', e.message); return; }
 
-  if(bin){
-    const p2=pending('Checking Bin ID...');
-    try{
-      const r=await fetch(`${JB_BASE}/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
+  if (bin) {
+    const p2 = pending('Checking Bin ID...');
+    try {
+      const r = await fetch(`${JB_BASE}/b/${bin}/latest`, { headers: { 'X-Master-Key': key } });
       p2.remove();
-      if(r.status===404){row('✗','diag-fail','Bin ID not found','Check the Bin ID is correct, or leave it blank to create a new one.');return;}
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      row('✓','diag-pass','Bin ID found','Ready to sync.');
-    }catch(e){p2.remove();row('✗','diag-fail','Bin check failed',e.message);return;}
-  }else{
-    row('✓','diag-warn','No Bin ID','A new bin will be created automatically on first save.');
+      if (r.status === 404) { row('✗', 'diag-fail', 'Bin ID not found', 'Check the Bin ID is correct, or leave it blank to create a new one.'); return; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      row('✓', 'diag-pass', 'Bin ID found', 'Ready to sync.');
+    } catch(e) { p2.remove(); row('✗', 'diag-fail', 'Bin check failed', e.message); return; }
+  } else {
+    row('✓', 'diag-warn', 'No Bin ID', 'A new bin will be created automatically on first save.');
   }
-  row('✓','diag-pass','All checks passed','Click Save &amp; Connect.');
+  row('✓', 'diag-pass', 'All checks passed', 'Click Save &amp; Connect.');
 }
 
 // ── Collect / Apply state ─────────────────────────────────────────
-function collectState(){
-  return{
-    title:       document.querySelector('.hdr h1').textContent,
-    subtitle:    document.querySelector('.hdr-sub').textContent,
-    mTitle:      document.querySelector('#meetings-card .card-hdr-title').textContent,
-    dTitle:      document.querySelector('#deliverables-card .card-hdr-title').textContent,
-    rTitle:      document.querySelector('#risks-card .card-hdr-title').textContent,
-    meetings:    getMRows(),
-    deliverables:getDRows(),
-    risks:       getRRows(),
+function collectState() {
+  return {
+    title:        document.querySelector('.hdr h1').textContent,
+    subtitle:     document.querySelector('.hdr-sub').textContent,
+    mTitle:       document.querySelector('#meetings-card .card-hdr-title').textContent,
+    dTitle:       document.querySelector('#deliverables-card .card-hdr-title').textContent,
+    rTitle:       document.querySelector('#risks-card .card-hdr-title').textContent,
+    meetings:     getMRows(),
+    deliverables: getDRows(),
+    risks:        getRRows(),
+    archived:     archived,
   };
 }
-function applyState(s){
-  if(s.title)   document.querySelector('.hdr h1').textContent=s.title;
-  if(s.subtitle)document.querySelector('.hdr-sub').textContent=s.subtitle;
-  if(s.mTitle)  document.querySelector('#meetings-card .card-hdr-title').textContent=s.mTitle;
-  if(s.dTitle)  document.querySelector('#deliverables-card .card-hdr-title').textContent=s.dTitle;
-  if(s.rTitle)  document.querySelector('#risks-card .card-hdr-title').textContent=s.rTitle;
-  ['meetings','deliverables','risks'].forEach(sec=>document.getElementById(sec+'-body').innerHTML='');
-  (s.meetings||[]).forEach(d=>document.getElementById('meetings-body').appendChild(makeMRow(d)));
-  (s.deliverables||[]).forEach(d=>document.getElementById('deliverables-body').appendChild(makeDRow(d)));
-  (s.risks||[]).forEach(d=>document.getElementById('risks-body').appendChild(makeRRow(d)));
-  ['meetings','deliverables','risks'].forEach(updateCount);
+function applyState(s) {
+  if (s.title)    document.querySelector('.hdr h1').textContent = s.title;
+  if (s.subtitle) document.querySelector('.hdr-sub').textContent = s.subtitle;
+  if (s.mTitle)   document.querySelector('#meetings-card .card-hdr-title').textContent = s.mTitle;
+  if (s.dTitle)   document.querySelector('#deliverables-card .card-hdr-title').textContent = s.dTitle;
+  if (s.rTitle)   document.querySelector('#risks-card .card-hdr-title').textContent = s.rTitle;
+  archived = s.archived || [];
+  ['meetings', 'deliverables', 'risks'].forEach(sec => document.getElementById(sec + '-body').innerHTML = '');
+  (s.meetings     || []).forEach(d => document.getElementById('meetings-body').appendChild(makeMRow(d)));
+  (s.deliverables || []).forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
+  (s.risks        || []).forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
+  ['meetings', 'deliverables', 'risks'].forEach(updateCount);
+  renderArchive();
 }
-function loadDefaults(){
-  ['meetings','deliverables','risks'].forEach(sec=>document.getElementById(sec+'-body').innerHTML='');
-  [{title:'Kickoff',date:'',owner:'',attendees:[],status:'Not started',agenda:'',deck:''},
-   {title:'Weekly sync',date:'',owner:'',attendees:[],status:'Not started',agenda:'',deck:''}
-  ].forEach(d=>document.getElementById('meetings-body').appendChild(makeMRow(d)));
-  [{title:'Project plan',date:'',owner:'',status:'Not started',linkedMeeting:'',outline:'',deck:''},
-   {title:'Final presentation',date:'',owner:'',status:'Not started',linkedMeeting:'',outline:'',deck:''}
-  ].forEach(d=>document.getElementById('deliverables-body').appendChild(makeDRow(d)));
-  [{risk:'',mitigation:'',status:'Open',owner:''}
-  ].forEach(d=>document.getElementById('risks-body').appendChild(makeRRow(d)));
-  ['meetings','deliverables','risks'].forEach(updateCount);
+function loadDefaults() {
+  archived = [];
+  ['meetings', 'deliverables', 'risks'].forEach(sec => document.getElementById(sec + '-body').innerHTML = '');
+  [
+    { title: 'Kickoff',     date: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
+    { title: 'Weekly sync', date: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
+  ].forEach(d => document.getElementById('meetings-body').appendChild(makeMRow(d)));
+  [
+    { title: 'Project plan',        date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
+    { title: 'Final presentation',  date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
+  ].forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
+  [
+    { risk: '', mitigation: '', status: 'Open', owner: '' },
+  ].forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
+  ['meetings', 'deliverables', 'risks'].forEach(updateCount);
+  renderArchive();
 }
 
 // ── Row data collectors ───────────────────────────────────────────
-function getMRows(){
-  return[...document.querySelectorAll('#meetings-body tr')].map(tr=>{
-    const c=tr.querySelectorAll('td');
-    return{
-      title: c[0].querySelector('.ce').textContent,
-      date:  c[1].querySelector('.date-input').value,
-      owner: c[2].querySelector('.owner-sel').value,
-      attendees:JSON.parse(c[3].dataset.attendees||'[]'),
-      status:c[4].querySelector('.status-sel').value,
-      agenda:c[5].dataset.agenda||'',
-      deck:  safeHref(c[6].querySelector('.li')),
+// Meetings columns: 0=title 1=date 2=owner 3=status 4=attendees 5=agenda 6=deck 7=archive
+function getMRows() {
+  return [...document.querySelectorAll('#meetings-body tr')].map(tr => {
+    const c = tr.querySelectorAll('td');
+    return {
+      title:     c[0].querySelector('.ce').textContent,
+      date:      c[1].querySelector('.date-input').value,
+      owner:     c[2].querySelector('.owner-sel').value,
+      status:    c[3].querySelector('.status-sel').value,
+      attendees: JSON.parse(c[4].dataset.attendees || '[]'),
+      agenda:    c[5].dataset.agenda || '',
+      deck:      safeHref(c[6].querySelector('.li')),
     };
   });
 }
-function getDRows(){
-  return[...document.querySelectorAll('#deliverables-body tr')].map(tr=>{
-    const c=tr.querySelectorAll('td');
-    return{
+// Deliverables columns: 0=title 1=date 2=owner 3=status 4=linkedMeeting 5=outline(note) 6=deck 7=archive
+function getDRows() {
+  return [...document.querySelectorAll('#deliverables-body tr')].map(tr => {
+    const c = tr.querySelectorAll('td');
+    return {
       title:         c[0].querySelector('.ce').textContent,
       date:          c[1].querySelector('.date-input').value,
       owner:         c[2].querySelector('.owner-sel').value,
       status:        c[3].querySelector('.status-sel').value,
       linkedMeeting: c[4].querySelector('.lnk-sel').value,
-      outline:       safeHref(c[5].querySelector('.li')),
+      outline:       c[5].dataset.outline || '',
       deck:          safeHref(c[6].querySelector('.li')),
     };
   });
 }
-function getRRows(){
-  return[...document.querySelectorAll('#risks-body tr')].map(tr=>{
-    const c=tr.querySelectorAll('td');
-    return{
+function getRRows() {
+  return [...document.querySelectorAll('#risks-body tr')].map(tr => {
+    const c = tr.querySelectorAll('td');
+    return {
       risk:       c[0].querySelector('.ce-lg').textContent,
       mitigation: c[1].querySelector('.ce-lg').textContent,
       status:     c[2].querySelector('.status-sel').value,
@@ -608,353 +659,467 @@ function getRRows(){
     };
   });
 }
-function safeHref(el){
-  if(!el)return'';
-  const h=el.getAttribute('href');
-  return h&&h!==''&&!h.endsWith(location.pathname)?h:'';
+function safeHref(el) {
+  if (!el) return '';
+  const h = el.getAttribute('href');
+  return h && h !== '' && !h.endsWith(location.pathname) ? h : '';
 }
 
 // ── Helpers: owner cell, status cell ─────────────────────────────
-function makeOwnerTd(val){
-  const td=document.createElement('td');
-  const wrap=document.createElement('div'); wrap.className='owner-wrap';
-  const av=document.createElement('span'); av.className='av';
-  const sel=document.createElement('select'); sel.className='owner-sel';
-  OWNERS.forEach(n=>{
-    const o=document.createElement('option');
-    o.value=n; o.textContent=n||'— None —';
-    if(n===(val||''))o.selected=true;
+function makeOwnerTd(val) {
+  const td = document.createElement('td');
+  const wrap = document.createElement('div'); wrap.className = 'owner-wrap';
+  const av = document.createElement('span'); av.className = 'av';
+  const sel = document.createElement('select'); sel.className = 'owner-sel';
+  OWNERS.forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n || '— None —';
+    if (n === (val || '')) o.selected = true;
     sel.appendChild(o);
   });
-  av.textContent=initials(sel.value);
-  sel.addEventListener('change',function(){av.textContent=initials(this.value);save();});
+  av.textContent = initials(sel.value);
+  sel.addEventListener('change', function() { av.textContent = initials(this.value); save(); });
   wrap.appendChild(av); wrap.appendChild(sel); td.appendChild(wrap);
   return td;
 }
-function makeStatusTd(val,list){
-  list=list||STATUSES;
-  const td=document.createElement('td');
-  const sel=document.createElement('select'); sel.className='status-sel';
-  list.forEach(s=>{
-    const o=document.createElement('option');
-    o.value=s.label; o.textContent=s.label;
-    if(s.label===(val||list[0].label))o.selected=true;
+function makeStatusTd(val, list) {
+  list = list || STATUSES;
+  const td = document.createElement('td');
+  const sel = document.createElement('select'); sel.className = 'status-sel';
+  list.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.label; o.textContent = s.label;
+    if (s.label === (val || list[0].label)) o.selected = true;
     sel.appendChild(o);
   });
-  function applyColor(){
-    const def=list.find(s=>s.label===sel.value)||list[0];
-    sel.style.background=def.bg; sel.style.color=def.fg;
+  function applyColor() {
+    const def = list.find(s => s.label === sel.value) || list[0];
+    sel.style.background = def.bg; sel.style.color = def.fg;
   }
   applyColor();
-  sel.addEventListener('change',function(){applyColor();save();});
+  sel.addEventListener('change', function() { applyColor(); save(); });
   td.appendChild(sel); return td;
 }
 
+// ── Archive button helper ─────────────────────────────────────────
+function makeArchBtn(tr, section) {
+  const td = document.createElement('td'); td.className = 'act';
+  const btn = document.createElement('button'); btn.className = 'arch-btn'; btn.title = 'Archive row';
+  btn.innerHTML = archSVG();
+  btn.addEventListener('click', () => archiveRow(tr, section));
+  td.appendChild(btn);
+  return td;
+}
+
 // ── Meeting row ───────────────────────────────────────────────────
-function makeMRow(data){
-  data=data||{};
-  const tr=document.createElement('tr');
+// Columns: title | date | owner | status | attendees | agenda | deck | archive
+function makeMRow(data) {
+  data = data || {};
+  const tr = document.createElement('tr');
 
-  // title
-  const t1=document.createElement('td');
-  const ce=document.createElement('span'); ce.className='ce'; ce.contentEditable='true'; ce.spellcheck=false;
-  ce.textContent=data.title||''; ce.addEventListener('input',save); t1.appendChild(ce);
+  const t1 = document.createElement('td');
+  const ce = document.createElement('span'); ce.className = 'ce'; ce.contentEditable = 'true'; ce.spellcheck = false;
+  ce.textContent = data.title || ''; ce.addEventListener('input', save); t1.appendChild(ce);
 
-  // date
-  const t2=document.createElement('td');
-  const di=document.createElement('input'); di.type='date'; di.className='date-input'; di.value=data.date||'';
-  di.addEventListener('change',save); t2.appendChild(di);
+  const t2 = document.createElement('td');
+  const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input'; di.value = data.date || '';
+  di.addEventListener('change', save); t2.appendChild(di);
 
-  // owner
-  const t3=makeOwnerTd(data.owner);
+  const t3 = makeOwnerTd(data.owner);
+  const t4 = makeStatusTd(data.status, STATUSES);
+  const t5 = makeAttTd(data.attendees || []);
 
-  // attendees
-  const t4=makeAttTd(data.attendees||[]);
-
-  // status
-  const t5=makeStatusTd(data.status,STATUSES);
-
-  // agenda
-  const t6=document.createElement('td'); t6.dataset.agenda=data.agenda||'';
-  const ab=document.createElement('button'); ab.className='ag-btn'+(data.agenda?' has':''); ab.title='Open agenda';
-  ab.innerHTML=noteSVG();
-  ab.addEventListener('click',e=>{e.stopPropagation();openAg(t6,ab,e);});
+  const t6 = document.createElement('td'); t6.dataset.agenda = data.agenda || '';
+  const ab = document.createElement('button'); ab.className = 'ag-btn' + (data.agenda ? ' has' : ''); ab.title = 'Open agenda';
+  ab.innerHTML = noteSVG();
+  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
   t6.appendChild(ab);
 
-  // deck
-  const t7=document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck',data.deck||''));
+  const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
+  const t8 = makeArchBtn(tr, 'meetings');
 
-  // delete
-  const t8=document.createElement('td'); t8.className='act';
-  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
-  db.addEventListener('click',()=>{tr.remove();updateCount('meetings');save();});
-  t8.appendChild(db);
-
-  tr.append(t1,t2,t3,t4,t5,t6,t7,t8);
+  tr.append(t1, t2, t3, t4, t5, t6, t7, t8);
   return tr;
 }
 
 // ── Deliverable row ───────────────────────────────────────────────
-function makeDRow(data){
-  data=data||{};
-  const tr=document.createElement('tr');
+// Columns: title | date | owner | status | linkedMeeting | outline(note) | deck | archive
+function makeDRow(data) {
+  data = data || {};
+  const tr = document.createElement('tr');
 
-  const t1=document.createElement('td');
-  const ce=document.createElement('span'); ce.className='ce'; ce.contentEditable='true'; ce.spellcheck=false;
-  ce.textContent=data.title||''; ce.addEventListener('input',save); t1.appendChild(ce);
+  const t1 = document.createElement('td');
+  const ce = document.createElement('span'); ce.className = 'ce'; ce.contentEditable = 'true'; ce.spellcheck = false;
+  ce.textContent = data.title || ''; ce.addEventListener('input', save); t1.appendChild(ce);
 
-  const t2=document.createElement('td');
-  const di=document.createElement('input'); di.type='date'; di.className='date-input'; di.value=data.date||'';
-  di.addEventListener('change',save); t2.appendChild(di);
+  const t2 = document.createElement('td');
+  const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input'; di.value = data.date || '';
+  di.addEventListener('change', save); t2.appendChild(di);
 
-  const t3=makeOwnerTd(data.owner);
-  const t4=makeStatusTd(data.status,STATUSES);
+  const t3 = makeOwnerTd(data.owner);
+  const t4 = makeStatusTd(data.status, STATUSES);
 
-  // linked meeting
-  const t5=document.createElement('td');
-  const ls=document.createElement('select'); ls.className='lnk-sel'+(data.linkedMeeting?' set':'');
-  ls.addEventListener('focus',()=>fillLinkedSel(ls,ls.value));
-  ls.addEventListener('change',function(){this.className='lnk-sel'+(this.value?' set':'');save();});
-  fillLinkedSel(ls,data.linkedMeeting||'');
+  const t5 = document.createElement('td');
+  const ls = document.createElement('select'); ls.className = 'lnk-sel' + (data.linkedMeeting ? ' set' : '');
+  ls.addEventListener('focus', () => fillLinkedSel(ls, ls.value));
+  ls.addEventListener('change', function() { this.className = 'lnk-sel' + (this.value ? ' set' : ''); save(); });
+  fillLinkedSel(ls, data.linkedMeeting || '');
   t5.appendChild(ls);
 
-  const t6=document.createElement('td'); t6.appendChild(makeLinkCell('Outline',data.outline||''));
-  const t7=document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck',data.deck||''));
+  // Outline as note (same format as Agenda)
+  const t6 = document.createElement('td'); t6.dataset.outline = data.outline || '';
+  const ob = document.createElement('button'); ob.className = 'ag-btn' + (data.outline ? ' has' : ''); ob.title = 'Open outline';
+  ob.innerHTML = noteSVG();
+  ob.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ob, e, '\u{1F4DD} Outline', 'outline'); });
+  t6.appendChild(ob);
 
-  const t8=document.createElement('td'); t8.className='act';
-  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
-  db.addEventListener('click',()=>{tr.remove();updateCount('deliverables');save();});
-  t8.appendChild(db);
+  const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
+  const t8 = makeArchBtn(tr, 'deliverables');
 
-  tr.append(t1,t2,t3,t4,t5,t6,t7,t8);
+  tr.append(t1, t2, t3, t4, t5, t6, t7, t8);
   return tr;
 }
 
 // ── Risk row ──────────────────────────────────────────────────────
-function makeRRow(data){
-  data=data||{};
-  const tr=document.createElement('tr');
+function makeRRow(data) {
+  data = data || {};
+  const tr = document.createElement('tr');
 
-  const t1=document.createElement('td');
-  const r=document.createElement('span'); r.className='ce-lg'; r.contentEditable='true'; r.spellcheck=false;
-  r.textContent=data.risk||''; r.addEventListener('input',save); t1.appendChild(r);
+  const t1 = document.createElement('td');
+  const r = document.createElement('span'); r.className = 'ce-lg'; r.contentEditable = 'true'; r.spellcheck = false;
+  r.textContent = data.risk || ''; r.addEventListener('input', save); t1.appendChild(r);
 
-  const t2=document.createElement('td');
-  const m=document.createElement('span'); m.className='ce-lg'; m.contentEditable='true'; m.spellcheck=false;
-  m.textContent=data.mitigation||''; m.addEventListener('input',save); t2.appendChild(m);
+  const t2 = document.createElement('td');
+  const m = document.createElement('span'); m.className = 'ce-lg'; m.contentEditable = 'true'; m.spellcheck = false;
+  m.textContent = data.mitigation || ''; m.addEventListener('input', save); t2.appendChild(m);
 
-  const t3=makeStatusTd(data.status||'Open',RISK_STATUSES);
-  const t4=makeOwnerTd(data.owner);
+  const t3 = makeStatusTd(data.status || 'Open', RISK_STATUSES);
+  const t4 = makeOwnerTd(data.owner);
+  const t5 = makeArchBtn(tr, 'risks');
 
-  const t5=document.createElement('td'); t5.className='act';
-  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
-  db.addEventListener('click',()=>{tr.remove();updateCount('risks');save();});
-  t5.appendChild(db);
-
-  tr.append(t1,t2,t3,t4,t5);
+  tr.append(t1, t2, t3, t4, t5);
   return tr;
 }
 
+// ── Archive row ───────────────────────────────────────────────────
+function archiveRow(tr, section) {
+  const c = tr.querySelectorAll('td');
+  let data;
+  if (section === 'meetings') {
+    data = {
+      title:     c[0].querySelector('.ce').textContent,
+      date:      c[1].querySelector('.date-input').value,
+      owner:     c[2].querySelector('.owner-sel').value,
+      status:    c[3].querySelector('.status-sel').value,
+      attendees: JSON.parse(c[4].dataset.attendees || '[]'),
+      agenda:    c[5].dataset.agenda || '',
+      deck:      safeHref(c[6].querySelector('.li')),
+    };
+  } else if (section === 'deliverables') {
+    data = {
+      title:         c[0].querySelector('.ce').textContent,
+      date:          c[1].querySelector('.date-input').value,
+      owner:         c[2].querySelector('.owner-sel').value,
+      status:        c[3].querySelector('.status-sel').value,
+      linkedMeeting: c[4].querySelector('.lnk-sel').value,
+      outline:       c[5].dataset.outline || '',
+      deck:          safeHref(c[6].querySelector('.li')),
+    };
+  } else {
+    data = {
+      risk:       c[0].querySelector('.ce-lg').textContent,
+      mitigation: c[1].querySelector('.ce-lg').textContent,
+      status:     c[2].querySelector('.status-sel').value,
+      owner:      c[3].querySelector('.owner-sel').value,
+    };
+  }
+  archived.push({ sec: section, data });
+  tr.remove();
+  updateCount(section);
+  renderArchive();
+  save();
+}
+
+function unarchiveRow(idx) {
+  const item = archived[idx];
+  if (!item) return;
+  archived.splice(idx, 1);
+  const tbody = document.getElementById(item.sec + '-body');
+  const tr = item.sec === 'meetings' ? makeMRow(item.data)
+           : item.sec === 'deliverables' ? makeDRow(item.data)
+           : makeRRow(item.data);
+  tbody.appendChild(tr);
+  updateCount(item.sec);
+  renderArchive();
+  save();
+}
+
+// ── Render Archive pane ───────────────────────────────────────────
+function renderArchive() {
+  const pane = document.getElementById('pane-archive');
+  pane.innerHTML = '';
+
+  if (archived.length === 0) {
+    pane.innerHTML = '<div class="arc-empty">No archived items</div>';
+    return;
+  }
+
+  const sections = [
+    { key: 'meetings',     labelEl: '#meetings-card .card-hdr-title',     fallback: 'Meetings' },
+    { key: 'deliverables', labelEl: '#deliverables-card .card-hdr-title', fallback: 'Deliverables' },
+    { key: 'risks',        labelEl: '#risks-card .card-hdr-title',        fallback: 'Risks' },
+  ];
+
+  sections.forEach(({ key, labelEl, fallback }) => {
+    const items = archived.map((x, i) => ({ ...x, _i: i })).filter(x => x.sec === key);
+    if (items.length === 0) return;
+
+    const label = document.querySelector(labelEl)?.textContent || fallback;
+
+    const card = document.createElement('div'); card.className = 'card';
+    const hdr = document.createElement('div'); hdr.className = 'card-hdr';
+    hdr.innerHTML = `<span class="card-hdr-title">${label}</span><span class="card-hdr-meta">${items.length} archived</span>`;
+    card.appendChild(hdr);
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    let thHTML = '';
+    if (key === 'meetings') {
+      thHTML = '<tr><th>Meeting</th><th style="width:105px">Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
+    } else if (key === 'deliverables') {
+      thHTML = '<tr><th>Deliverable</th><th style="width:105px">Due Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
+    } else {
+      thHTML = '<tr><th>Risk</th><th style="width:115px">Status</th><th style="width:120px">Owner</th><th style="width:130px"></th></tr>';
+    }
+    thead.innerHTML = thHTML;
+
+    items.forEach(item => {
+      const d = item.data;
+      const i = item._i;
+      const statusList = key === 'risks' ? RISK_STATUSES : STATUSES;
+      const statusDef = statusList.find(s => s.label === d.status) || statusList[0];
+      const badgeHTML = `<span class="badge" style="background:${statusDef.bg};color:${statusDef.fg}">${statusDef.label}</span>`;
+      const actHTML = `<td><div class="arc-actions"><button class="arc-restore-btn" onclick="unarchiveRow(${i})">Restore</button><button class="arc-del-btn" onclick="openDelConf(${i})">Delete</button></div></td>`;
+
+      const tr = document.createElement('tr');
+      if (key === 'meetings') {
+        tr.innerHTML = `<td style="font-size:13px">${d.title || '<em style="color:#aaa">Untitled</em>'}</td><td style="font-size:12px;color:#6b6b67">${d.date || '—'}</td><td style="font-size:12px">${d.owner || '—'}</td><td>${badgeHTML}</td>${actHTML}`;
+      } else if (key === 'deliverables') {
+        tr.innerHTML = `<td style="font-size:13px">${d.title || '<em style="color:#aaa">Untitled</em>'}</td><td style="font-size:12px;color:#6b6b67">${d.date || '—'}</td><td style="font-size:12px">${d.owner || '—'}</td><td>${badgeHTML}</td>${actHTML}`;
+      } else {
+        tr.innerHTML = `<td style="font-size:13px">${d.risk || '<em style="color:#aaa">Untitled</em>'}</td><td>${badgeHTML}</td><td style="font-size:12px">${d.owner || '—'}</td>${actHTML}`;
+      }
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead); table.appendChild(tbody);
+    card.appendChild(table);
+    pane.appendChild(card);
+  });
+}
+
 // ── Attendees cell ────────────────────────────────────────────────
-function makeAttTd(selected){
-  selected=selected||[];
-  const td=document.createElement('td'); td.className='att-cell'; td.dataset.attendees=JSON.stringify(selected);
+function makeAttTd(selected) {
+  selected = selected || [];
+  const td = document.createElement('td'); td.className = 'att-cell'; td.dataset.attendees = JSON.stringify(selected);
+  const disp = document.createElement('div'); disp.className = 'att-display';
 
-  const disp=document.createElement('div'); disp.className='att-display';
-
-  function render(){
-    disp.innerHTML='';
-    const sel=JSON.parse(td.dataset.attendees||'[]');
-    sel.forEach(name=>{
-      const a=ATTENDEES.find(x=>x.name===name); if(!a)return;
-      const p=document.createElement('span'); p.className='badge att-pill '+a.cls; p.textContent=name;
+  function render() {
+    disp.innerHTML = '';
+    const sel = JSON.parse(td.dataset.attendees || '[]');
+    sel.forEach(name => {
+      const a = ATTENDEES.find(x => x.name === name); if (!a) return;
+      const p = document.createElement('span'); p.className = 'badge att-pill ' + a.cls; p.textContent = name;
       disp.appendChild(p);
     });
-    const btn=document.createElement('button'); btn.className='att-add'; btn.textContent='+'; btn.title='Edit attendees';
-    btn.addEventListener('click',e=>{e.stopPropagation();toggleAttPopup(td,popup);});
+    const btn = document.createElement('button'); btn.className = 'att-add'; btn.textContent = '+'; btn.title = 'Edit attendees';
+    btn.addEventListener('click', e => { e.stopPropagation(); toggleAttPopup(td, popup); });
     disp.appendChild(btn);
   }
 
-  const popup=document.createElement('div'); popup.className='att-popup';
-  ATTENDEES.forEach(att=>{
-    const row=document.createElement('div'); row.className='att-row'; row.dataset.name=att.name;
-    const badge=document.createElement('span'); badge.className='badge '+att.cls; badge.textContent=att.name;
-    const chk=document.createElement('span'); chk.className='att-chk';
-    chk.textContent=selected.includes(att.name)?'✓':'';
+  const popup = document.createElement('div'); popup.className = 'att-popup';
+  ATTENDEES.forEach(att => {
+    const row = document.createElement('div'); row.className = 'att-row'; row.dataset.name = att.name;
+    const badge = document.createElement('span'); badge.className = 'badge ' + att.cls; badge.textContent = att.name;
+    const chk = document.createElement('span'); chk.className = 'att-chk';
+    chk.textContent = selected.includes(att.name) ? '✓' : '';
     row.appendChild(badge); row.appendChild(chk);
-    row.addEventListener('click',e=>{e.stopPropagation();toggleAtt(td,popup,att.name,render);});
+    row.addEventListener('click', e => { e.stopPropagation(); toggleAtt(td, popup, att.name, render); });
     popup.appendChild(row);
   });
 
-  td._render=render; render();
+  td._render = render; render();
   td.appendChild(disp); td.appendChild(popup);
   return td;
 }
-function toggleAtt(td,popup,name,render){
-  let sel=JSON.parse(td.dataset.attendees||'[]');
-  sel=sel.includes(name)?sel.filter(n=>n!==name):[...sel,name];
-  td.dataset.attendees=JSON.stringify(sel);
-  popup.querySelectorAll('.att-row').forEach(r=>{r.querySelector('.att-chk').textContent=sel.includes(r.dataset.name)?'✓':'';});
+function toggleAtt(td, popup, name, render) {
+  let sel = JSON.parse(td.dataset.attendees || '[]');
+  sel = sel.includes(name) ? sel.filter(n => n !== name) : [...sel, name];
+  td.dataset.attendees = JSON.stringify(sel);
+  popup.querySelectorAll('.att-row').forEach(r => { r.querySelector('.att-chk').textContent = sel.includes(r.dataset.name) ? '✓' : ''; });
   render(); save();
 }
-function toggleAttPopup(td,popup){
-  const was=popup.classList.contains('open');
-  closeAllAtt(); if(!was)popup.classList.add('open');
+function toggleAttPopup(td, popup) {
+  const was = popup.classList.contains('open');
+  closeAllAtt(); if (!was) popup.classList.add('open');
 }
-function closeAllAtt(){document.querySelectorAll('.att-popup.open').forEach(p=>p.classList.remove('open'));}
+function closeAllAtt() { document.querySelectorAll('.att-popup.open').forEach(p => p.classList.remove('open')); }
 
 // ── Linked meeting select ─────────────────────────────────────────
-function fillLinkedSel(sel,cur){
-  sel.innerHTML='<option value="">— None —</option>';
-  document.querySelectorAll('#meetings-body tr').forEach(tr=>{
-    const t=tr.querySelector('.ce')?.textContent.trim();
-    if(!t)return;
-    const o=document.createElement('option'); o.value=t; o.textContent=t;
-    if(t===cur)o.selected=true;
+function fillLinkedSel(sel, cur) {
+  sel.innerHTML = '<option value="">— None —</option>';
+  document.querySelectorAll('#meetings-body tr').forEach(tr => {
+    const t = tr.querySelector('.ce')?.textContent.trim();
+    if (!t) return;
+    const o = document.createElement('option'); o.value = t; o.textContent = t;
+    if (t === cur) o.selected = true;
     sel.appendChild(o);
   });
-  if(!cur)sel.value='';
+  if (!cur) sel.value = '';
 }
 
 // ── Add row ───────────────────────────────────────────────────────
-function addRow(sec){
-  const tbody=document.getElementById(sec+'-body');
-  const tr=sec==='meetings'?makeMRow():sec==='deliverables'?makeDRow():makeRRow();
+function addRow(sec) {
+  const tbody = document.getElementById(sec + '-body');
+  const tr = sec === 'meetings' ? makeMRow() : sec === 'deliverables' ? makeDRow() : makeRRow();
   tbody.appendChild(tr);
-  (tr.querySelector('.ce,.ce-lg')||{}).focus&&tr.querySelector('.ce,.ce-lg').focus();
+  (tr.querySelector('.ce,.ce-lg') || {}).focus && tr.querySelector('.ce,.ce-lg').focus();
   updateCount(sec); save();
 }
-function updateCount(sec){
-  const n=document.getElementById(sec+'-body').querySelectorAll('tr').length;
-  const lbl={meetings:'meeting',deliverables:'deliverable',risks:'risk'}[sec];
-  document.getElementById(sec+'-count').textContent=n===1?`1 ${lbl}`:`${n} ${lbl}s`;
+function updateCount(sec) {
+  const n = document.getElementById(sec + '-body').querySelectorAll('tr').length;
+  const lbl = { meetings: 'meeting', deliverables: 'deliverable', risks: 'risk' }[sec];
+  document.getElementById(sec + '-count').textContent = n === 1 ? `1 ${lbl}` : `${n} ${lbl}s`;
 }
 
 // ── Sort ──────────────────────────────────────────────────────────
-const sortSt={};
-function sortTbl(sec,col,th){
-  const k=sec+'-'+col, prev=sortSt[k]||0, dir=prev===1?-1:1; sortSt[k]=dir;
-  const table=document.getElementById(sec+'-body').closest('table');
-  table.querySelectorAll('th').forEach(t=>t.classList.remove('sort-asc','sort-desc'));
-  th.classList.add(dir===1?'sort-asc':'sort-desc');
-  const tbody=document.getElementById(sec+'-body');
-  const rows=[...tbody.querySelectorAll('tr')];
-  rows.sort((a,b)=>{
-    const av=sortVal(a,col),bv=sortVal(b,col);
-    return av<bv?-dir:av>bv?dir:0;
+const sortSt = {};
+function sortTbl(sec, col, th) {
+  const k = sec + '-' + col, prev = sortSt[k] || 0, dir = prev === 1 ? -1 : 1; sortSt[k] = dir;
+  const table = document.getElementById(sec + '-body').closest('table');
+  table.querySelectorAll('th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+  th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
+  const tbody = document.getElementById(sec + '-body');
+  const rows = [...tbody.querySelectorAll('tr')];
+  rows.sort((a, b) => {
+    const av = sortVal(a, col), bv = sortVal(b, col);
+    return av < bv ? -dir : av > bv ? dir : 0;
   });
-  rows.forEach(r=>tbody.appendChild(r)); save();
+  rows.forEach(r => tbody.appendChild(r)); save();
 }
-function sortVal(tr,col){
-  const td=tr.querySelectorAll('td')[col]; if(!td)return'';
-  return (td.querySelector('.date-input')?.value||td.querySelector('.owner-sel')?.value||td.querySelector('.status-sel')?.value||td.querySelector('.ce,.ce-lg')?.textContent||'').toLowerCase();
+function sortVal(tr, col) {
+  const td = tr.querySelectorAll('td')[col]; if (!td) return '';
+  return (td.querySelector('.date-input')?.value || td.querySelector('.owner-sel')?.value || td.querySelector('.status-sel')?.value || td.querySelector('.ce,.ce-lg')?.textContent || '').toLowerCase();
 }
 
-// ── Agenda popup ──────────────────────────────────────────────────
-let agTd=null,agBtn=null;
-function openAg(td,btn,e){
-  agTd=td;agBtn=btn;
-  const p=document.getElementById('ag-popup');
-  document.getElementById('ag-ta').value=td.dataset.agenda||'';
+// ── Note popup (shared for Agenda + Outline) ──────────────────────
+let noteTd = null, noteBtn = null, noteDataKey = 'agenda';
+function openNote(td, btn, e, title, dataKey) {
+  noteTd = td; noteBtn = btn; noteDataKey = dataKey;
+  document.getElementById('note-popup-title').textContent = title;
+  document.getElementById('note-ta').value = td.dataset[dataKey] || '';
+  const p = document.getElementById('note-popup');
   p.classList.add('open');
-  const r=btn.getBoundingClientRect();
-  let top=r.bottom+6,left=r.left;
-  if(left+300>innerWidth-10)left=innerWidth-310;
-  if(top+240>innerHeight-10)top=r.top-246;
-  p.style.top=top+'px';p.style.left=left+'px';
-  document.getElementById('ag-ta').focus();
+  const rect = btn.getBoundingClientRect();
+  let top = rect.bottom + 6, left = rect.left;
+  if (left + 300 > innerWidth - 10) left = innerWidth - 310;
+  if (top + 240 > innerHeight - 10) top = rect.top - 246;
+  p.style.top = top + 'px'; p.style.left = left + 'px';
+  document.getElementById('note-ta').focus();
 }
-function closeAg(){
-  if(agTd){
-    const v=document.getElementById('ag-ta').value;
-    agTd.dataset.agenda=v;
-    if(agBtn)agBtn.className='ag-btn'+(v?' has':'');
+function closeNote() {
+  if (noteTd) {
+    const v = document.getElementById('note-ta').value;
+    noteTd.dataset[noteDataKey] = v;
+    if (noteBtn) noteBtn.className = 'ag-btn' + (v ? ' has' : '');
     save();
   }
-  document.getElementById('ag-popup').classList.remove('open');
-  agTd=null;agBtn=null;
+  document.getElementById('note-popup').classList.remove('open');
+  noteTd = null; noteBtn = null;
 }
 
 // ── Link cell ─────────────────────────────────────────────────────
-function makeLinkCell(label,url){
-  const wrap=document.createElement('div'); wrap.className='link-cell';
-  const iw=document.createElement('div'); iw.className='link-input-wrap';
-  const pn=document.getElementById('lpt').content.cloneNode(true);
-  const popup=pn.querySelector('.lp');
-  popup.querySelector('label').textContent=label;
-  const inp=popup.querySelector('input'); inp.value=url||'';
-  const icon=document.createElement('a'); icon.className='li'+(url?' on':'');
-  icon.title=url?'Open '+label:'Add '+label; icon.innerHTML=linkSVG();
-  if(url){icon.href=url;icon.target='_blank';}
-  icon.addEventListener('click',e=>{
-    if(icon.getAttribute('href'))return;
-    e.preventDefault();closeAllLnk();popup.classList.add('open');inp.focus();inp.select();
+function makeLinkCell(label, url) {
+  const wrap = document.createElement('div'); wrap.className = 'link-cell';
+  const iw = document.createElement('div'); iw.className = 'link-input-wrap';
+  const pn = document.getElementById('lpt').content.cloneNode(true);
+  const popup = pn.querySelector('.lp');
+  popup.querySelector('label').textContent = label;
+  const inp = popup.querySelector('input'); inp.value = url || '';
+  const icon = document.createElement('a'); icon.className = 'li' + (url ? ' on' : '');
+  icon.title = url ? 'Open ' + label : 'Add ' + label; icon.innerHTML = linkSVG();
+  if (url) { icon.href = url; icon.target = '_blank'; }
+  icon.addEventListener('click', e => {
+    if (icon.getAttribute('href')) return;
+    e.preventDefault(); closeAllLnk(); popup.classList.add('open'); inp.focus(); inp.select();
   });
-  const eb=document.createElement('button'); eb.className='li'; eb.style.cssText='border:none;cursor:pointer;';
-  eb.title='Edit link'; eb.innerHTML=pencilSVG();
-  eb.addEventListener('click',e=>{e.stopPropagation();closeAllLnk();popup.classList.add('open');inp.focus();inp.select();});
-  popup._icon=icon; popup._label=label;
-  iw.appendChild(icon);iw.appendChild(eb);iw.appendChild(popup);
+  const eb = document.createElement('button'); eb.className = 'li'; eb.style.cssText = 'border:none;cursor:pointer;';
+  eb.title = 'Edit link'; eb.innerHTML = pencilSVG();
+  eb.addEventListener('click', e => { e.stopPropagation(); closeAllLnk(); popup.classList.add('open'); inp.focus(); inp.select(); });
+  popup._icon = icon; popup._label = label;
+  iw.appendChild(icon); iw.appendChild(eb); iw.appendChild(popup);
   wrap.appendChild(iw); return wrap;
 }
-function saveLnk(btn){
-  const p=btn.closest('.lp'),url=p.querySelector('input').value.trim(),icon=p._icon;
-  if(url){icon.href=url;icon.target='_blank';icon.className='li on';icon.title='Open '+p._label;}
-  else{icon.removeAttribute('href');icon.removeAttribute('target');icon.className='li';icon.title='Add '+p._label;}
-  p.classList.remove('open');save();
+function saveLnk(btn) {
+  const p = btn.closest('.lp'), url = p.querySelector('input').value.trim(), icon = p._icon;
+  if (url) { icon.href = url; icon.target = '_blank'; icon.className = 'li on'; icon.title = 'Open ' + p._label; }
+  else { icon.removeAttribute('href'); icon.removeAttribute('target'); icon.className = 'li'; icon.title = 'Add ' + p._label; }
+  p.classList.remove('open'); save();
 }
-function clearLnk(btn){
-  const p=btn.closest('.lp'),icon=p._icon;
-  p.querySelector('input').value='';
-  icon.removeAttribute('href');icon.removeAttribute('target');
-  icon.className='li';icon.title='Add '+p._label;
-  p.classList.remove('open');save();
+function clearLnk(btn) {
+  const p = btn.closest('.lp'), icon = p._icon;
+  p.querySelector('input').value = '';
+  icon.removeAttribute('href'); icon.removeAttribute('target');
+  icon.className = 'li'; icon.title = 'Add ' + p._label;
+  p.classList.remove('open'); save();
 }
-function closeAllLnk(){document.querySelectorAll('.lp.open').forEach(p=>p.classList.remove('open'));}
+function closeAllLnk() { document.querySelectorAll('.lp.open').forEach(p => p.classList.remove('open')); }
 
 // ── Global click handler ──────────────────────────────────────────
-document.addEventListener('click',e=>{
-  if(!e.target.closest('#ag-popup')&&!e.target.closest('.ag-btn'))closeAg();
-  if(!e.target.closest('.att-cell'))closeAllAtt();
-  if(!e.target.closest('.link-input-wrap'))closeAllLnk();
+document.addEventListener('click', e => {
+  if (!e.target.closest('#note-popup') && !e.target.closest('.ag-btn')) closeNote();
+  if (!e.target.closest('.att-cell')) closeAllAtt();
+  if (!e.target.closest('.link-input-wrap')) closeAllLnk();
 });
 
 // ── Calendar ──────────────────────────────────────────────────────
-let calY=new Date().getFullYear(),calM=new Date().getMonth();
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DOWS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let calY = new Date().getFullYear(), calM = new Date().getMonth();
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOWS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-function calStep(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
-function renderCal(){
-  document.getElementById('cal-title').textContent=MONTHS[calM]+' '+calY;
-  const grid=document.getElementById('cal-grid'); grid.innerHTML='';
-  DOWS.forEach(d=>{const c=document.createElement('div');c.className='cal-dow';c.textContent=d;grid.appendChild(c);});
-  const firstDow=new Date(calY,calM,1).getDay();
-  const days=new Date(calY,calM+1,0).getDate();
-  const today=new Date();
-  const evts={};
-  const addEv=(dateStr,title,type)=>{
-    if(!dateStr)return;
-    const d=new Date(dateStr+'T00:00:00');
-    if(d.getFullYear()===calY&&d.getMonth()===calM){
-      const k=d.getDate(); if(!evts[k])evts[k]=[];
-      evts[k].push({title:title||'(untitled)',type});
+function calStep(d) { calM += d; if (calM > 11) { calM = 0; calY++; } if (calM < 0) { calM = 11; calY--; } renderCal(); }
+function renderCal() {
+  document.getElementById('cal-title').textContent = MONTHS[calM] + ' ' + calY;
+  const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
+  DOWS.forEach(d => { const c = document.createElement('div'); c.className = 'cal-dow'; c.textContent = d; grid.appendChild(c); });
+  const firstDow = new Date(calY, calM, 1).getDay();
+  const days = new Date(calY, calM + 1, 0).getDate();
+  const today = new Date();
+  const evts = {};
+  const addEv = (dateStr, title, type) => {
+    if (!dateStr) return;
+    const d = new Date(dateStr + 'T00:00:00');
+    if (d.getFullYear() === calY && d.getMonth() === calM) {
+      const k = d.getDate(); if (!evts[k]) evts[k] = [];
+      evts[k].push({ title: title || '(untitled)', type });
     }
   };
-  document.querySelectorAll('#meetings-body tr').forEach(tr=>addEv(tr.querySelector('.date-input')?.value,tr.querySelector('.ce')?.textContent,'m'));
-  document.querySelectorAll('#deliverables-body tr').forEach(tr=>addEv(tr.querySelector('.date-input')?.value,tr.querySelector('.ce')?.textContent,'d'));
-  for(let i=0;i<firstDow;i++){const c=document.createElement('div');c.className='cal-day empty';grid.appendChild(c);}
-  for(let day=1;day<=days;day++){
-    const cell=document.createElement('div'); cell.className='cal-day';
-    const isToday=day===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear();
-    const num=document.createElement('div'); num.className='cal-num';
-    if(isToday)num.innerHTML=`<span class="cal-num today-num">${day}</span>`;
-    else num.textContent=day;
+  document.querySelectorAll('#meetings-body tr').forEach(tr => addEv(tr.querySelector('.date-input')?.value, tr.querySelector('.ce')?.textContent, 'm'));
+  document.querySelectorAll('#deliverables-body tr').forEach(tr => addEv(tr.querySelector('.date-input')?.value, tr.querySelector('.ce')?.textContent, 'd'));
+  for (let i = 0; i < firstDow; i++) { const c = document.createElement('div'); c.className = 'cal-day empty'; grid.appendChild(c); }
+  for (let day = 1; day <= days; day++) {
+    const cell = document.createElement('div'); cell.className = 'cal-day';
+    const isToday = day === today.getDate() && calM === today.getMonth() && calY === today.getFullYear();
+    const num = document.createElement('div'); num.className = 'cal-num';
+    if (isToday) num.innerHTML = `<span class="cal-num today-num">${day}</span>`;
+    else num.textContent = day;
     cell.appendChild(num);
-    (evts[day]||[]).forEach(ev=>{
-      const chip=document.createElement('div');
-      chip.className='cal-ev cal-ev-'+(ev.type==='m'?'m':'d');
-      chip.textContent=ev.title; chip.title=ev.title;
+    (evts[day] || []).forEach(ev => {
+      const chip = document.createElement('div');
+      chip.className = 'cal-ev cal-ev-' + (ev.type === 'm' ? 'm' : 'd');
+      chip.textContent = ev.title; chip.title = ev.title;
       cell.appendChild(chip);
     });
     grid.appendChild(cell);
@@ -962,19 +1127,20 @@ function renderCal(){
 }
 
 // ── SVGs ──────────────────────────────────────────────────────────
-function linkSVG(){return`<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h3v3M9 7l4-4M7 5H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3"/></svg>`;}
-function pencilSVG(){return`<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5 13.5 4.5 5 13H3v-2L11.5 2.5z"/></svg>`;}
-function noteSVG(){return`<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>`;}
+function linkSVG()  { return `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h3v3M9 7l4-4M7 5H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3"/></svg>`; }
+function pencilSVG(){ return `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5 13.5 4.5 5 13H3v-2L11.5 2.5z"/></svg>`; }
+function noteSVG()  { return `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>`; }
+function archSVG()  { return `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="4" rx="1"/><path d="M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5"/><path d="M6.5 9.5l1.5 1.5 1.5-1.5M8 8v3"/></svg>`; }
 
 // ── Utils ─────────────────────────────────────────────────────────
-function initials(n){const p=(n||'').trim().split(/\s+/);if(!p[0])return'?';if(p.length===1)return p[0].slice(0,2).toUpperCase();return(p[0][0]+p[p.length-1][0]).toUpperCase();}
+function initials(n) { const p = (n || '').trim().split(/\s+/); if (!p[0]) return '?'; if (p.length === 1) return p[0].slice(0, 2).toUpperCase(); return (p[0][0] + p[p.length - 1][0]).toUpperCase(); }
 
-document.addEventListener('blur',e=>{if(e.target.contentEditable==='true')save();},true);
+document.addEventListener('blur', e => { if (e.target.contentEditable === 'true') save(); }, true);
 
 // ── Init ──────────────────────────────────────────────────────────
-async function init(){
+async function init() {
   await jbLoad();
-  if(!JB_KEY) openSetup();
+  if (!JB_KEY) openSetup();
 }
 init();
 </script>
