@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f7f4;color:#1a1a18;font-size:14px;line-height:1.5}
+.hdr{padding:1rem 1.5rem 0.75rem;border-bottom:1px solid #e5e3db;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.hdr h1{font-size:16px;font-weight:500;color:#1a1a18;outline:none}
+.hdr h1[contenteditable]:focus{background:#f8f7f4;border-radius:4px;padding:0 4px}
+.hdr-sub{font-size:12px;color:#6b6b67;outline:none}
+.hdr-sub[contenteditable]:focus{background:#f8f7f4;border-radius:4px;padding:0 4px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sp-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;transition:all 0.2s}
+.sp-idle{background:#F1EFE8;color:#5F5E5A}
+.sp-saving{background:#FAEEDA;color:#854F0B}
+.sp-saved{background:#EAF3DE;color:#3B6D11}
+.sp-error{background:#FCEBEB;color:#A32D2D;cursor:pointer}
+.cfg-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid #c8c6bc;background:#fff;color:#6b6b67;cursor:pointer}
+.cfg-btn:hover{background:#f8f7f4;color:#1a1a18}
+
+/* tabs */
+.tabs{display:flex;border-bottom:1px solid #e5e3db;padding:0 1.5rem;background:#fff;overflow-x:auto}
+.tab{padding:0.6rem 1rem;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:#6b6b67;white-space:nowrap;user-select:none}
+.tab.active{color:#1a1a18;border-bottom-color:#1a1a18;font-weight:500}
+.tab:hover:not(.active){color:#1a1a18;background:#f8f7f4}
+
+/* panes */
+.pane{display:none;padding:1.25rem 1.5rem;background:#f8f7f4;min-height:600px}
+.pane.active{display:block}
+
+/* sections & cards */
+.section-label{font-size:11px;font-weight:500;color:#6b6b67;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;margin-top:1.5rem}
+.section-label:first-child{margin-top:0}
+.card{background:#fff;border:0.5px solid #e5e3db;border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.card-hdr{padding:0.6rem 1rem;background:#f8f7f4;border-bottom:0.5px solid #e5e3db;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap}
+.card-hdr-title{font-size:13px;font-weight:500;color:#1a1a18;outline:none}
+.card-hdr-title[contenteditable]:focus{background:#fff;border-radius:4px;padding:0 4px}
+.card-hdr-meta{font-size:11px;color:#6b6b67}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th{text-align:left;padding:0.4rem 0.75rem;font-size:11px;font-weight:500;color:#6b6b67;border-bottom:0.5px solid #e5e3db;background:#fafaf8;white-space:nowrap;overflow:hidden;user-select:none}
+th.sortable{cursor:pointer}
+th.sortable:hover{color:#1a1a18;background:#f1efe8}
+th.sort-asc .sarr::after{content:'↑';opacity:1}
+th.sort-desc .sarr::after{content:'↓';opacity:1}
+th:not(.sort-asc):not(.sort-desc) .sarr::after{content:'↕';opacity:0.35}
+.sarr{margin-left:3px;font-size:10px}
+td{padding:0.45rem 0.75rem;border-bottom:0.5px solid #e5e3db;vertical-align:middle;color:#1a1a18}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+
+/* editable cells */
+.ce{outline:none;min-height:18px;display:block;width:100%}
+.ce:focus{background:#EEF4FF;border-radius:4px;padding:1px 4px;margin:-1px -4px}
+.ce-lg{outline:none;min-height:44px;display:block;width:100%;line-height:1.55}
+.ce-lg:focus{background:#EEF4FF;border-radius:4px;padding:2px 4px}
+
+/* date */
+.date-input{font-size:13px;color:#6b6b67;border:none;background:transparent;outline:none;cursor:pointer;font-family:inherit;width:100%;padding:0}
+.date-input::-webkit-calendar-picker-indicator{cursor:pointer;opacity:0.4}
+.date-input:focus{color:#1a1a18}
+
+/* badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-green{background:#EAF3DE;color:#3B6D11}
+.b-amber{background:#FAEEDA;color:#854F0B}
+.b-red{background:#FCEBEB;color:#A32D2D}
+.b-blue{background:#E6F1FB;color:#185FA5}
+.b-gray{background:#F1EFE8;color:#5F5E5A}
+.b-teal{background:#E1F5EE;color:#0F6E56}
+.b-purple{background:#EEEDFE;color:#534AB7}
+.b-coral{background:#FAECE7;color:#993C1D}
+
+/* status select styled as badge */
+.status-sel{-webkit-appearance:none;appearance:none;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500;border:none;cursor:pointer;outline:none;font-family:inherit}
+
+/* owner */
+.owner-wrap{display:inline-flex;align-items:center;gap:5px;width:100%}
+.av{width:22px;height:22px;border-radius:50%;background:#E6F1FB;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:#185FA5;flex-shrink:0;text-transform:uppercase}
+.owner-sel{-webkit-appearance:none;appearance:none;border:none;background:transparent;font-size:12px;font-family:inherit;color:#1a1a18;cursor:pointer;outline:none;flex:1;min-width:0}
+.owner-sel:focus{background:#EEF4FF;border-radius:4px;padding:1px 4px}
+
+/* attendees */
+.att-cell{position:relative}
+.att-display{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-height:22px}
+.att-pill{font-size:10px;padding:1px 5px}
+.att-add{width:18px;height:18px;border-radius:4px;border:0.5px dashed #c8c6bc;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b6b67;font-size:14px;line-height:1;flex-shrink:0}
+.att-add:hover{background:#f1efe8;border-color:#88877f;color:#1a1a18}
+.att-popup{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:0.5px solid #e5e3db;border-radius:8px;padding:5px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:120;min-width:145px}
+.att-popup.open{display:block}
+.att-row{display:flex;align-items:center;justify-content:space-between;padding:3px 5px;border-radius:4px;cursor:pointer;gap:6px}
+.att-row:hover{background:#f8f7f4}
+.att-chk{font-size:11px;color:#3B6D11;width:12px;text-align:center}
+
+/* linked meeting */
+.lnk-sel{-webkit-appearance:none;appearance:none;border:none;background:transparent;font-size:12px;font-family:inherit;color:#aaa;cursor:pointer;outline:none;width:100%}
+.lnk-sel:focus{background:#EEF4FF;border-radius:4px;padding:1px 4px;color:#1a1a18}
+.lnk-sel.set{color:#185FA5;font-weight:500}
+
+/* link cell */
+.link-cell{display:flex;align-items:center;gap:3px}
+.link-input-wrap{position:relative;display:inline-flex;align-items:center}
+.li{width:18px;height:18px;border-radius:4px;background:#f1efe8;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;text-decoration:none;color:#6b6b67;transition:background 0.15s;border:none}
+.li:hover{background:#e5e3db;color:#1a1a18}
+.li.on{background:#E6F1FB;color:#185FA5}
+.li.on:hover{background:#cfe0f5}
+.lp{display:none;position:absolute;bottom:calc(100% + 6px);left:0;background:#fff;border:0.5px solid #e5e3db;border-radius:8px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,0.10);z-index:130;width:280px}
+.lp.open{display:block}
+.lp label{font-size:11px;color:#6b6b67;display:block;margin-bottom:3px}
+.lp input{width:100%;font-size:12px;border:0.5px solid #c8c6bc;border-radius:6px;padding:4px 8px;outline:none;color:#1a1a18;font-family:inherit}
+.lp input:focus{border-color:#185FA5}
+.lp .pa{display:flex;justify-content:flex-end;gap:6px;margin-top:6px}
+.pbtn{padding:3px 10px;border-radius:6px;font-size:12px;cursor:pointer;border:0.5px solid #c8c6bc;background:#fff;color:#1a1a18}
+.pbtn.p{background:#1a1a18;color:#fff;border-color:#1a1a18}
+.pbtn:hover:not(.p){background:#f8f7f4}
+.pbtn.p:hover{background:#333}
+
+/* add row */
+.add-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;font-size:12px;color:#6b6b67;border:0.5px dashed #c8c6bc;border-radius:8px;cursor:pointer;background:none;margin:0.5rem 0.75rem;transition:all 0.15s}
+.add-btn:hover{background:#f8f7f4;border-color:#88877f;color:#1a1a18}
+.del-btn{opacity:0;width:20px;height:20px;border-radius:4px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#A32D2D;font-size:14px;padding:0;flex-shrink:0}
+tr:hover .del-btn{opacity:1}
+.del-btn:hover{background:#FCEBEB}
+.act{width:30px;text-align:center}
+
+/* agenda */
+.ag-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid #e5e3db;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b6b67;transition:all 0.15s}
+.ag-btn:hover{background:#f8f7f4}
+.ag-btn.has{background:#fffef0;border-color:#e5d96b;color:#93790a}
+#ag-popup{display:none;position:fixed;background:#fffef0;border:1px solid #e5d96b;border-radius:8px;box-shadow:3px 5px 20px rgba(0,0,0,0.15);width:300px;z-index:150;flex-direction:column}
+#ag-popup.open{display:flex}
+.ag-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #e5d96b;font-size:12px;font-weight:500;color:#93790a;background:#fefce8;border-radius:7px 7px 0 0}
+.ag-hdr button{background:none;border:none;cursor:pointer;color:#93790a;font-size:16px;line-height:1;padding:0 2px}
+.ag-hdr button:hover{color:#1a1a18}
+#ag-ta{width:100%;min-height:180px;border:none;background:transparent;resize:vertical;font-family:inherit;font-size:13px;padding:10px 12px;outline:none;color:#1a1a18;line-height:1.6}
+
+/* calendar */
+.cal-nav{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem}
+.cal-nbtn{padding:4px 12px;border-radius:8px;border:0.5px solid #c8c6bc;background:#fff;cursor:pointer;font-size:13px;color:#1a1a18}
+.cal-nbtn:hover{background:#f8f7f4}
+.cal-title{font-size:15px;font-weight:500;min-width:140px;text-align:center}
+.cal-legend{display:flex;gap:10px;margin-bottom:10px}
+.cal-leg{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500}
+#cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border:0.5px solid #e5e3db;border-radius:12px;overflow:hidden;background:#fff}
+.cal-dow{text-align:center;font-size:11px;font-weight:500;color:#6b6b67;padding:6px 4px;background:#fafaf8;border-bottom:0.5px solid #e5e3db}
+.cal-day{min-height:80px;padding:4px 5px;border-right:0.5px solid #f1efe8;border-bottom:0.5px solid #f1efe8;vertical-align:top}
+.cal-day:nth-child(7n){border-right:none}
+.cal-day.empty{background:#fafaf8}
+.cal-num{font-size:11px;color:#6b6b67;margin-bottom:3px;font-weight:500}
+.cal-num.today-num{background:#1a1a18;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
+.cal-ev{font-size:10px;padding:1px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+.cal-ev-m{background:#E6F1FB;color:#185FA5}
+.cal-ev-d{background:#FAEEDA;color:#854F0B}
+
+/* setup overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.ov-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:520px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
+.ov-box h2{font-size:15px;font-weight:500;margin-bottom:0.25rem}
+.ov-box p{font-size:13px;color:#6b6b67;margin-bottom:1rem;line-height:1.6}
+.ov-box ol{font-size:13px;color:#6b6b67;padding-left:1.25rem;margin-bottom:1rem;line-height:2}
+.ov-box ol code{background:#f1efe8;padding:1px 5px;border-radius:4px;font-size:12px;color:#1a1a18}
+.ov-label{font-size:11px;font-weight:500;color:#6b6b67;margin-bottom:4px;display:block}
+.ov-input{width:100%;font-size:13px;border:0.5px solid #c8c6bc;border-radius:8px;padding:6px 10px;outline:none;font-family:inherit;color:#1a1a18;margin-bottom:1rem}
+.ov-input:focus{border-color:#185FA5}
+.ov-note{font-size:11px;color:#6b6b67;background:#f8f7f4;border-radius:6px;padding:0.5rem 0.75rem;margin-bottom:1rem;line-height:1.6}
+.ov-actions{display:flex;justify-content:flex-end;gap:8px}
+.diag-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid #f1efe8;font-size:12px}
+.diag-row:last-child{border-bottom:none}
+.diag-icon{width:16px;flex-shrink:0;text-align:center;margin-top:1px}
+.diag-pass{color:#3B6D11}.diag-fail{color:#A32D2D}.diag-warn{color:#854F0B}.diag-spin{color:#854F0B}
+.diag-label{color:#1a1a18;font-weight:500}
+.diag-msg{color:#6b6b67;margin-top:1px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1 contenteditable="true" spellcheck="false">Work Tracker</h1>
+    <div class="hdr-sub" contenteditable="true" spellcheck="false">Click fields to edit &middot; Dropdowns for owner &amp; status</div>
+  </div>
+  <div class="hdr-right">
+    <span id="sp-badge" class="sp-badge sp-idle">Connecting...</span>
+    <button class="cfg-btn" onclick="openSetup()">&#9881; Setup</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('tracker',this)">Tracker</div>
+  <div class="tab" onclick="showTab('calendar',this)">Calendar</div>
+</div>
+
+<!-- TRACKER PANE -->
+<div id="pane-tracker" class="pane active">
+
+  <div class="section-label">Meetings</div>
+  <div class="card" id="meetings-card">
+    <div class="card-hdr">
+      <span class="card-hdr-title" contenteditable="true" spellcheck="false">Meetings</span>
+      <span class="card-hdr-meta" id="meetings-count">0 meetings</span>
+    </div>
+    <table>
+      <colgroup>
+        <col><col style="width:105px"><col style="width:120px"><col style="width:195px">
+        <col style="width:115px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+      </colgroup>
+      <thead><tr>
+        <th class="sortable" onclick="sortTbl('meetings',0,this)">Meeting<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',1,this)">Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('meetings',2,this)">Accountable<span class="sarr"></span></th>
+        <th>Client Attendees</th>
+        <th class="sortable" onclick="sortTbl('meetings',4,this)">Status<span class="sarr"></span></th>
+        <th>Agenda</th><th>Deck</th><th></th>
+      </tr></thead>
+      <tbody id="meetings-body"></tbody>
+    </table>
+    <button class="add-btn" onclick="addRow('meetings')">+ Add meeting</button>
+  </div>
+
+  <div class="section-label">Deliverables</div>
+  <div class="card" id="deliverables-card">
+    <div class="card-hdr">
+      <span class="card-hdr-title" contenteditable="true" spellcheck="false">Deliverables</span>
+      <span class="card-hdr-meta" id="deliverables-count">0 deliverables</span>
+    </div>
+    <table>
+      <colgroup>
+        <col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:150px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+      </colgroup>
+      <thead><tr>
+        <th class="sortable" onclick="sortTbl('deliverables',0,this)">Deliverable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',1,this)">Due Date<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',2,this)">Accountable<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('deliverables',3,this)">Status<span class="sarr"></span></th>
+        <th>Linked Meeting</th>
+        <th>Outline</th><th>Deck</th><th></th>
+      </tr></thead>
+      <tbody id="deliverables-body"></tbody>
+    </table>
+    <button class="add-btn" onclick="addRow('deliverables')">+ Add deliverable</button>
+  </div>
+
+  <div class="section-label">Risks</div>
+  <div class="card" id="risks-card">
+    <div class="card-hdr">
+      <span class="card-hdr-title" contenteditable="true" spellcheck="false">Risks</span>
+      <span class="card-hdr-meta" id="risks-count">0 risks</span>
+    </div>
+    <table>
+      <colgroup>
+        <col style="width:35%"><col style="width:35%">
+        <col style="width:115px"><col style="width:120px"><col style="width:30px">
+      </colgroup>
+      <thead><tr>
+        <th class="sortable" onclick="sortTbl('risks',0,this)">Risk<span class="sarr"></span></th>
+        <th>Suggested Mitigation</th>
+        <th class="sortable" onclick="sortTbl('risks',2,this)">Status<span class="sarr"></span></th>
+        <th class="sortable" onclick="sortTbl('risks',3,this)">Accountable<span class="sarr"></span></th>
+        <th></th>
+      </tr></thead>
+      <tbody id="risks-body"></tbody>
+    </table>
+    <button class="add-btn" onclick="addRow('risks')">+ Add risk</button>
+  </div>
+
+</div><!-- /pane-tracker -->
+
+<!-- CALENDAR PANE -->
+<div id="pane-calendar" class="pane">
+  <div class="cal-nav">
+    <button class="cal-nbtn" onclick="calStep(-1)">&#8592;</button>
+    <span class="cal-title" id="cal-title"></span>
+    <button class="cal-nbtn" onclick="calStep(1)">&#8594;</button>
+  </div>
+  <div class="cal-legend">
+    <span class="cal-leg cal-ev-m">&#9679; Meeting</span>
+    <span class="cal-leg cal-ev-d">&#9679; Deliverable</span>
+  </div>
+  <div id="cal-grid"></div>
+</div>
+
+<!-- Agenda popup -->
+<div id="ag-popup">
+  <div class="ag-hdr">
+    <span>&#128203; Agenda</span>
+    <button onclick="closeAg()">&#x2715;</button>
+  </div>
+  <textarea id="ag-ta" placeholder="Add agenda items...&#10;&#10;1. &#10;2. &#10;3. "></textarea>
+</div>
+
+<!-- Link popup template -->
+<template id="lpt">
+  <div class="lp">
+    <label>URL</label>
+    <input type="url" placeholder="https://..." spellcheck="false">
+    <div class="pa">
+      <button class="pbtn" onclick="clearLnk(this)">Clear</button>
+      <button class="pbtn p" onclick="saveLnk(this)">Save</button>
+    </div>
+  </div>
+</template>
+
+<!-- Setup overlay -->
+<div class="overlay" id="setup-overlay">
+  <div class="ov-box">
+    <h2>JSONBin Setup</h2>
+    <p>This tracker saves to JSONBin so your whole team shares the same data. Complete once:</p>
+    <ol>
+      <li>Go to <strong>jsonbin.io</strong> and create a free account</li>
+      <li>Click <strong>API Keys</strong> in the left sidebar</li>
+      <li>Copy your <strong>Master Key</strong> and paste it below</li>
+      <li>Click <strong>Save &amp; Connect</strong> — a shared bin is created automatically on first save</li>
+      <li>Share the <strong>Bin ID</strong> (shown after first save) with teammates so they can connect to the same data</li>
+    </ol>
+    <div class="ov-note">Teammates paste the same Master Key + Bin ID to connect to your shared tracker. The Bin ID appears here after the first save.</div>
+    <label class="ov-label">Master Key</label>
+    <input class="ov-input" id="jb-key-inp" type="password" placeholder="$2a$10$..." spellcheck="false" autocomplete="off">
+    <label class="ov-label">Bin ID <span style="font-weight:400;color:#aaa">(leave blank on first setup — auto-created)</span></label>
+    <input class="ov-input" id="jb-bin-inp" type="text" placeholder="auto-created on first save" spellcheck="false">
+    <div id="diag-results" style="display:none;background:#f8f7f4;border-radius:8px;padding:8px 10px;margin-bottom:1rem"></div>
+    <div class="ov-actions">
+      <button class="pbtn" onclick="closeSetup()">Cancel</button>
+      <button class="pbtn" onclick="runDiagnostic()">&#128269; Test Key</button>
+      <button class="pbtn p" onclick="saveSetup()">Save &amp; Connect</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────
+const OWNERS = ['','Alan','Ramya','Aarthi','Xin Yi','Nikhil'];
+
+const STATUSES = [
+  {label:'Not started',bg:'#F1EFE8',fg:'#5F5E5A'},
+  {label:'In prep',    bg:'#FAEEDA',fg:'#854F0B'},
+  {label:'In progress',bg:'#E6F1FB',fg:'#185FA5'},
+  {label:'On track',  bg:'#EAF3DE',fg:'#3B6D11'},
+  {label:'At risk',   bg:'#FAEEDA',fg:'#854F0B'},
+  {label:'Complete',  bg:'#E1F5EE',fg:'#0F6E56'},
+  {label:'Blocked',   bg:'#FCEBEB',fg:'#A32D2D'},
+];
+
+const RISK_STATUSES = [
+  {label:'Open',      bg:'#FCEBEB',fg:'#A32D2D'},
+  {label:'Monitored', bg:'#FAEEDA',fg:'#854F0B'},
+  {label:'Mitigated', bg:'#EAF3DE',fg:'#3B6D11'},
+  {label:'Closed',    bg:'#F1EFE8',fg:'#5F5E5A'},
+];
+
+const ATTENDEES = [
+  {name:'Jeff G',       cls:'b-blue'},
+  {name:'Steve B',      cls:'b-purple'},
+  {name:'Zandra K',     cls:'b-teal'},
+  {name:'Matt H',       cls:'b-amber'},
+  {name:'Working team', cls:'b-gray'},
+];
+
+// ── JSONBin config ────────────────────────────────────────────────
+let JB_KEY = localStorage.getItem('jb_key') || '';
+let JB_BIN = localStorage.getItem('jb_bin') || '';
+const JB_BASE = 'https://api.jsonbin.io/v3';
+let saveTimer = null;
+
+// ── Tab nav ───────────────────────────────────────────────────────
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='calendar') renderCal();
+}
+
+// ── Status badge ──────────────────────────────────────────────────
+function setSP(s, detail){
+  const el=document.getElementById('sp-badge');
+  const m={
+    idle:    ['sp-idle',  'Ready'],
+    loading: ['sp-saving','Loading...'],
+    saving:  ['sp-saving','Saving...'],
+    saved:   ['sp-saved', 'Saved ✓'],
+    local:   ['sp-warn',  'Saved locally'],
+    error:   ['sp-error', 'Error — click to diagnose'],
+    nokey:   ['sp-idle',  'Not connected'],
+  };
+  const[cls,txt]=m[s]||m.idle;
+  el.className='sp-badge '+cls;
+  el.textContent=detail||(m[s]||m.idle)[1];
+  el.title=detail||'';
+  el.onclick=s==='error'?()=>{openSetup();runDiagnostic();}:null;
+}
+document.head.insertAdjacentHTML('beforeend','<style>.sp-warn{background:#FAEEDA;color:#854F0B}</style>');
+
+// ── Setup overlay ─────────────────────────────────────────────────
+function openSetup(){
+  document.getElementById('jb-key-inp').value=JB_KEY;
+  document.getElementById('jb-bin-inp').value=JB_BIN;
+  document.getElementById('diag-results').style.display='none';
+  document.getElementById('setup-overlay').classList.add('open');
+}
+function closeSetup(){document.getElementById('setup-overlay').classList.remove('open');}
+function saveSetup(){
+  const key=document.getElementById('jb-key-inp').value.trim();
+  const bin=document.getElementById('jb-bin-inp').value.trim();
+  if(!key){alert('Please enter your JSONBin Master Key.');return;}
+  JB_KEY=key; JB_BIN=bin;
+  localStorage.setItem('jb_key',JB_KEY);
+  localStorage.setItem('jb_bin',JB_BIN);
+  closeSetup(); init();
+}
+document.getElementById('setup-overlay').addEventListener('click',e=>{if(e.target.id==='setup-overlay')closeSetup();});
+
+// ── JSONBin helpers ───────────────────────────────────────────────
+function jbHeaders(){
+  return {'Content-Type':'application/json','X-Master-Key':JB_KEY,'X-Bin-Versioning':'false'};
+}
+
+async function jbLoad(){
+  setSP('loading');
+  try{localStorage.setItem('wt_local',localStorage.getItem('wt_local')||'');}catch(e){}
+  if(!JB_KEY){loadFromLocalOrDefaults();setSP('nokey');openSetup();return;}
+  try{
+    if(!JB_BIN){loadFromLocalOrDefaults();setSP('local','No bin yet — will create on first save');return;}
+    const r=await fetch(`${JB_BASE}/b/${JB_BIN}/latest`,{headers:jbHeaders()});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    applyState(j.record);
+    setSP('saved');
+  }catch(e){
+    console.error('[JB load]',e);
+    setSP('error',e.message);
+    loadFromLocalOrDefaults();
+  }
+}
+
+function loadFromLocalOrDefaults(){
+  try{const raw=localStorage.getItem('wt_local');if(raw){applyState(JSON.parse(raw));return;}}catch(e){}
+  loadDefaults();
+}
+
+function save(){
+  clearTimeout(saveTimer);setSP('saving');
+  saveTimer=setTimeout(doSave,1500);
+}
+
+async function doSave(){
+  const state=collectState();
+  // Always save locally first
+  try{localStorage.setItem('wt_local',JSON.stringify(state));}catch(e){}
+  if(!JB_KEY){setSP('local','Saved locally — add a JSONBin key in Setup to share with team');return;}
+  setSP('saving');
+  try{
+    if(JB_BIN){
+      // Update existing bin
+      const r=await fetch(`${JB_BASE}/b/${JB_BIN}`,{method:'PUT',headers:jbHeaders(),body:JSON.stringify(state)});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+    }else{
+      // Create new bin
+      const r=await fetch(`${JB_BASE}/b`,{method:'POST',headers:{...jbHeaders(),'X-Bin-Name':'work-tracker','X-Bin-Private':'true'},body:JSON.stringify(state)});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const j=await r.json();
+      JB_BIN=j.metadata.id;
+      localStorage.setItem('jb_bin',JB_BIN);
+      // Show bin ID prominently so user can share it
+      showBinCreated(JB_BIN);
+    }
+    setSP('saved');
+  }catch(e){console.error('[JB save]',e);setSP('error',e.message);}
+}
+
+function showBinCreated(binId){
+  // Brief banner showing the bin ID for sharing
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#EAF3DE;border:1px solid #3B6D11;color:#1a1a18;border-radius:10px;padding:12px 20px;font-size:13px;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.12);max-width:420px;text-align:center;line-height:1.6';
+  el.innerHTML=`<strong>Bin created!</strong> Share this Bin ID with your team:<br><code style="background:#fff;padding:2px 8px;border-radius:4px;font-size:13px;user-select:all">${binId}</code><br><span style="font-size:11px;color:#6b6b67">They paste it in ⚙ Setup → Bin ID</span>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),12000);
+}
+
+// ── Diagnostic (JSONBin) ──────────────────────────────────────────
+async function runDiagnostic(){
+  const box=document.getElementById('diag-results');
+  box.style.display='block'; box.innerHTML='';
+  const key=document.getElementById('jb-key-inp').value.trim();
+  const bin=document.getElementById('jb-bin-inp').value.trim();
+
+  function row(icon,cls,label,msg){
+    const d=document.createElement('div'); d.className='diag-row';
+    d.innerHTML=`<span class="diag-icon ${cls}">${icon}</span><div><div class="diag-label">${label}</div>${msg?`<div class="diag-msg">${msg}</div>`:''}</div>`;
+    box.appendChild(d);
+  }
+  function pending(label){
+    const d=document.createElement('div'); d.className='diag-row';
+    d.innerHTML=`<span class="diag-icon">&#8987;</span><div class="diag-label">${label}</div>`;
+    box.appendChild(d); return d;
+  }
+
+  if(!key){row('✗','diag-fail','No Master Key entered','Paste your JSONBin Master Key above.');return;}
+  row('✓','diag-pass','Master Key entered','');
+
+  const p=pending('Testing key with JSONBin API...');
+  try{
+    const r=await fetch(`${JB_BASE}/b`,{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'test-ping','X-Bin-Private':'true'},body:'{"ping":true}'});
+    p.remove();
+    if(r.status===401){row('✗','diag-fail','Invalid Master Key','Double-check you copied the Master Key (not the Access Key) from jsonbin.io → API Keys.');return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    // Delete the test bin immediately
+    fetch(`${JB_BASE}/b/${j.metadata.id}`,{method:'DELETE',headers:{'X-Master-Key':key}});
+    row('✓','diag-pass','Master Key is valid','');
+  }catch(e){p.remove();row('✗','diag-fail','Request failed',e.message);return;}
+
+  if(bin){
+    const p2=pending('Checking Bin ID...');
+    try{
+      const r=await fetch(`${JB_BASE}/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
+      p2.remove();
+      if(r.status===404){row('✗','diag-fail','Bin ID not found','Check the Bin ID is correct, or leave it blank to create a new one.');return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      row('✓','diag-pass','Bin ID found','Ready to sync.');
+    }catch(e){p2.remove();row('✗','diag-fail','Bin check failed',e.message);return;}
+  }else{
+    row('✓','diag-warn','No Bin ID','A new bin will be created automatically on first save.');
+  }
+  row('✓','diag-pass','All checks passed','Click Save &amp; Connect.');
+}
+
+// ── Collect / Apply state ─────────────────────────────────────────
+function collectState(){
+  return{
+    title:       document.querySelector('.hdr h1').textContent,
+    subtitle:    document.querySelector('.hdr-sub').textContent,
+    mTitle:      document.querySelector('#meetings-card .card-hdr-title').textContent,
+    dTitle:      document.querySelector('#deliverables-card .card-hdr-title').textContent,
+    rTitle:      document.querySelector('#risks-card .card-hdr-title').textContent,
+    meetings:    getMRows(),
+    deliverables:getDRows(),
+    risks:       getRRows(),
+  };
+}
+function applyState(s){
+  if(s.title)   document.querySelector('.hdr h1').textContent=s.title;
+  if(s.subtitle)document.querySelector('.hdr-sub').textContent=s.subtitle;
+  if(s.mTitle)  document.querySelector('#meetings-card .card-hdr-title').textContent=s.mTitle;
+  if(s.dTitle)  document.querySelector('#deliverables-card .card-hdr-title').textContent=s.dTitle;
+  if(s.rTitle)  document.querySelector('#risks-card .card-hdr-title').textContent=s.rTitle;
+  ['meetings','deliverables','risks'].forEach(sec=>document.getElementById(sec+'-body').innerHTML='');
+  (s.meetings||[]).forEach(d=>document.getElementById('meetings-body').appendChild(makeMRow(d)));
+  (s.deliverables||[]).forEach(d=>document.getElementById('deliverables-body').appendChild(makeDRow(d)));
+  (s.risks||[]).forEach(d=>document.getElementById('risks-body').appendChild(makeRRow(d)));
+  ['meetings','deliverables','risks'].forEach(updateCount);
+}
+function loadDefaults(){
+  ['meetings','deliverables','risks'].forEach(sec=>document.getElementById(sec+'-body').innerHTML='');
+  [{title:'Kickoff',date:'',owner:'',attendees:[],status:'Not started',agenda:'',deck:''},
+   {title:'Weekly sync',date:'',owner:'',attendees:[],status:'Not started',agenda:'',deck:''}
+  ].forEach(d=>document.getElementById('meetings-body').appendChild(makeMRow(d)));
+  [{title:'Project plan',date:'',owner:'',status:'Not started',linkedMeeting:'',outline:'',deck:''},
+   {title:'Final presentation',date:'',owner:'',status:'Not started',linkedMeeting:'',outline:'',deck:''}
+  ].forEach(d=>document.getElementById('deliverables-body').appendChild(makeDRow(d)));
+  [{risk:'',mitigation:'',status:'Open',owner:''}
+  ].forEach(d=>document.getElementById('risks-body').appendChild(makeRRow(d)));
+  ['meetings','deliverables','risks'].forEach(updateCount);
+}
+
+// ── Row data collectors ───────────────────────────────────────────
+function getMRows(){
+  return[...document.querySelectorAll('#meetings-body tr')].map(tr=>{
+    const c=tr.querySelectorAll('td');
+    return{
+      title: c[0].querySelector('.ce').textContent,
+      date:  c[1].querySelector('.date-input').value,
+      owner: c[2].querySelector('.owner-sel').value,
+      attendees:JSON.parse(c[3].dataset.attendees||'[]'),
+      status:c[4].querySelector('.status-sel').value,
+      agenda:c[5].dataset.agenda||'',
+      deck:  safeHref(c[6].querySelector('.li')),
+    };
+  });
+}
+function getDRows(){
+  return[...document.querySelectorAll('#deliverables-body tr')].map(tr=>{
+    const c=tr.querySelectorAll('td');
+    return{
+      title:         c[0].querySelector('.ce').textContent,
+      date:          c[1].querySelector('.date-input').value,
+      owner:         c[2].querySelector('.owner-sel').value,
+      status:        c[3].querySelector('.status-sel').value,
+      linkedMeeting: c[4].querySelector('.lnk-sel').value,
+      outline:       safeHref(c[5].querySelector('.li')),
+      deck:          safeHref(c[6].querySelector('.li')),
+    };
+  });
+}
+function getRRows(){
+  return[...document.querySelectorAll('#risks-body tr')].map(tr=>{
+    const c=tr.querySelectorAll('td');
+    return{
+      risk:       c[0].querySelector('.ce-lg').textContent,
+      mitigation: c[1].querySelector('.ce-lg').textContent,
+      status:     c[2].querySelector('.status-sel').value,
+      owner:      c[3].querySelector('.owner-sel').value,
+    };
+  });
+}
+function safeHref(el){
+  if(!el)return'';
+  const h=el.getAttribute('href');
+  return h&&h!==''&&!h.endsWith(location.pathname)?h:'';
+}
+
+// ── Helpers: owner cell, status cell ─────────────────────────────
+function makeOwnerTd(val){
+  const td=document.createElement('td');
+  const wrap=document.createElement('div'); wrap.className='owner-wrap';
+  const av=document.createElement('span'); av.className='av';
+  const sel=document.createElement('select'); sel.className='owner-sel';
+  OWNERS.forEach(n=>{
+    const o=document.createElement('option');
+    o.value=n; o.textContent=n||'— None —';
+    if(n===(val||''))o.selected=true;
+    sel.appendChild(o);
+  });
+  av.textContent=initials(sel.value);
+  sel.addEventListener('change',function(){av.textContent=initials(this.value);save();});
+  wrap.appendChild(av); wrap.appendChild(sel); td.appendChild(wrap);
+  return td;
+}
+function makeStatusTd(val,list){
+  list=list||STATUSES;
+  const td=document.createElement('td');
+  const sel=document.createElement('select'); sel.className='status-sel';
+  list.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.label; o.textContent=s.label;
+    if(s.label===(val||list[0].label))o.selected=true;
+    sel.appendChild(o);
+  });
+  function applyColor(){
+    const def=list.find(s=>s.label===sel.value)||list[0];
+    sel.style.background=def.bg; sel.style.color=def.fg;
+  }
+  applyColor();
+  sel.addEventListener('change',function(){applyColor();save();});
+  td.appendChild(sel); return td;
+}
+
+// ── Meeting row ───────────────────────────────────────────────────
+function makeMRow(data){
+  data=data||{};
+  const tr=document.createElement('tr');
+
+  // title
+  const t1=document.createElement('td');
+  const ce=document.createElement('span'); ce.className='ce'; ce.contentEditable='true'; ce.spellcheck=false;
+  ce.textContent=data.title||''; ce.addEventListener('input',save); t1.appendChild(ce);
+
+  // date
+  const t2=document.createElement('td');
+  const di=document.createElement('input'); di.type='date'; di.className='date-input'; di.value=data.date||'';
+  di.addEventListener('change',save); t2.appendChild(di);
+
+  // owner
+  const t3=makeOwnerTd(data.owner);
+
+  // attendees
+  const t4=makeAttTd(data.attendees||[]);
+
+  // status
+  const t5=makeStatusTd(data.status,STATUSES);
+
+  // agenda
+  const t6=document.createElement('td'); t6.dataset.agenda=data.agenda||'';
+  const ab=document.createElement('button'); ab.className='ag-btn'+(data.agenda?' has':''); ab.title='Open agenda';
+  ab.innerHTML=noteSVG();
+  ab.addEventListener('click',e=>{e.stopPropagation();openAg(t6,ab,e);});
+  t6.appendChild(ab);
+
+  // deck
+  const t7=document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck',data.deck||''));
+
+  // delete
+  const t8=document.createElement('td'); t8.className='act';
+  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
+  db.addEventListener('click',()=>{tr.remove();updateCount('meetings');save();});
+  t8.appendChild(db);
+
+  tr.append(t1,t2,t3,t4,t5,t6,t7,t8);
+  return tr;
+}
+
+// ── Deliverable row ───────────────────────────────────────────────
+function makeDRow(data){
+  data=data||{};
+  const tr=document.createElement('tr');
+
+  const t1=document.createElement('td');
+  const ce=document.createElement('span'); ce.className='ce'; ce.contentEditable='true'; ce.spellcheck=false;
+  ce.textContent=data.title||''; ce.addEventListener('input',save); t1.appendChild(ce);
+
+  const t2=document.createElement('td');
+  const di=document.createElement('input'); di.type='date'; di.className='date-input'; di.value=data.date||'';
+  di.addEventListener('change',save); t2.appendChild(di);
+
+  const t3=makeOwnerTd(data.owner);
+  const t4=makeStatusTd(data.status,STATUSES);
+
+  // linked meeting
+  const t5=document.createElement('td');
+  const ls=document.createElement('select'); ls.className='lnk-sel'+(data.linkedMeeting?' set':'');
+  ls.addEventListener('focus',()=>fillLinkedSel(ls,ls.value));
+  ls.addEventListener('change',function(){this.className='lnk-sel'+(this.value?' set':'');save();});
+  fillLinkedSel(ls,data.linkedMeeting||'');
+  t5.appendChild(ls);
+
+  const t6=document.createElement('td'); t6.appendChild(makeLinkCell('Outline',data.outline||''));
+  const t7=document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck',data.deck||''));
+
+  const t8=document.createElement('td'); t8.className='act';
+  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
+  db.addEventListener('click',()=>{tr.remove();updateCount('deliverables');save();});
+  t8.appendChild(db);
+
+  tr.append(t1,t2,t3,t4,t5,t6,t7,t8);
+  return tr;
+}
+
+// ── Risk row ──────────────────────────────────────────────────────
+function makeRRow(data){
+  data=data||{};
+  const tr=document.createElement('tr');
+
+  const t1=document.createElement('td');
+  const r=document.createElement('span'); r.className='ce-lg'; r.contentEditable='true'; r.spellcheck=false;
+  r.textContent=data.risk||''; r.addEventListener('input',save); t1.appendChild(r);
+
+  const t2=document.createElement('td');
+  const m=document.createElement('span'); m.className='ce-lg'; m.contentEditable='true'; m.spellcheck=false;
+  m.textContent=data.mitigation||''; m.addEventListener('input',save); t2.appendChild(m);
+
+  const t3=makeStatusTd(data.status||'Open',RISK_STATUSES);
+  const t4=makeOwnerTd(data.owner);
+
+  const t5=document.createElement('td'); t5.className='act';
+  const db=document.createElement('button'); db.className='del-btn'; db.innerHTML='&times;';
+  db.addEventListener('click',()=>{tr.remove();updateCount('risks');save();});
+  t5.appendChild(db);
+
+  tr.append(t1,t2,t3,t4,t5);
+  return tr;
+}
+
+// ── Attendees cell ────────────────────────────────────────────────
+function makeAttTd(selected){
+  selected=selected||[];
+  const td=document.createElement('td'); td.className='att-cell'; td.dataset.attendees=JSON.stringify(selected);
+
+  const disp=document.createElement('div'); disp.className='att-display';
+
+  function render(){
+    disp.innerHTML='';
+    const sel=JSON.parse(td.dataset.attendees||'[]');
+    sel.forEach(name=>{
+      const a=ATTENDEES.find(x=>x.name===name); if(!a)return;
+      const p=document.createElement('span'); p.className='badge att-pill '+a.cls; p.textContent=name;
+      disp.appendChild(p);
+    });
+    const btn=document.createElement('button'); btn.className='att-add'; btn.textContent='+'; btn.title='Edit attendees';
+    btn.addEventListener('click',e=>{e.stopPropagation();toggleAttPopup(td,popup);});
+    disp.appendChild(btn);
+  }
+
+  const popup=document.createElement('div'); popup.className='att-popup';
+  ATTENDEES.forEach(att=>{
+    const row=document.createElement('div'); row.className='att-row'; row.dataset.name=att.name;
+    const badge=document.createElement('span'); badge.className='badge '+att.cls; badge.textContent=att.name;
+    const chk=document.createElement('span'); chk.className='att-chk';
+    chk.textContent=selected.includes(att.name)?'✓':'';
+    row.appendChild(badge); row.appendChild(chk);
+    row.addEventListener('click',e=>{e.stopPropagation();toggleAtt(td,popup,att.name,render);});
+    popup.appendChild(row);
+  });
+
+  td._render=render; render();
+  td.appendChild(disp); td.appendChild(popup);
+  return td;
+}
+function toggleAtt(td,popup,name,render){
+  let sel=JSON.parse(td.dataset.attendees||'[]');
+  sel=sel.includes(name)?sel.filter(n=>n!==name):[...sel,name];
+  td.dataset.attendees=JSON.stringify(sel);
+  popup.querySelectorAll('.att-row').forEach(r=>{r.querySelector('.att-chk').textContent=sel.includes(r.dataset.name)?'✓':'';});
+  render(); save();
+}
+function toggleAttPopup(td,popup){
+  const was=popup.classList.contains('open');
+  closeAllAtt(); if(!was)popup.classList.add('open');
+}
+function closeAllAtt(){document.querySelectorAll('.att-popup.open').forEach(p=>p.classList.remove('open'));}
+
+// ── Linked meeting select ─────────────────────────────────────────
+function fillLinkedSel(sel,cur){
+  sel.innerHTML='<option value="">— None —</option>';
+  document.querySelectorAll('#meetings-body tr').forEach(tr=>{
+    const t=tr.querySelector('.ce')?.textContent.trim();
+    if(!t)return;
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    if(t===cur)o.selected=true;
+    sel.appendChild(o);
+  });
+  if(!cur)sel.value='';
+}
+
+// ── Add row ───────────────────────────────────────────────────────
+function addRow(sec){
+  const tbody=document.getElementById(sec+'-body');
+  const tr=sec==='meetings'?makeMRow():sec==='deliverables'?makeDRow():makeRRow();
+  tbody.appendChild(tr);
+  (tr.querySelector('.ce,.ce-lg')||{}).focus&&tr.querySelector('.ce,.ce-lg').focus();
+  updateCount(sec); save();
+}
+function updateCount(sec){
+  const n=document.getElementById(sec+'-body').querySelectorAll('tr').length;
+  const lbl={meetings:'meeting',deliverables:'deliverable',risks:'risk'}[sec];
+  document.getElementById(sec+'-count').textContent=n===1?`1 ${lbl}`:`${n} ${lbl}s`;
+}
+
+// ── Sort ──────────────────────────────────────────────────────────
+const sortSt={};
+function sortTbl(sec,col,th){
+  const k=sec+'-'+col, prev=sortSt[k]||0, dir=prev===1?-1:1; sortSt[k]=dir;
+  const table=document.getElementById(sec+'-body').closest('table');
+  table.querySelectorAll('th').forEach(t=>t.classList.remove('sort-asc','sort-desc'));
+  th.classList.add(dir===1?'sort-asc':'sort-desc');
+  const tbody=document.getElementById(sec+'-body');
+  const rows=[...tbody.querySelectorAll('tr')];
+  rows.sort((a,b)=>{
+    const av=sortVal(a,col),bv=sortVal(b,col);
+    return av<bv?-dir:av>bv?dir:0;
+  });
+  rows.forEach(r=>tbody.appendChild(r)); save();
+}
+function sortVal(tr,col){
+  const td=tr.querySelectorAll('td')[col]; if(!td)return'';
+  return (td.querySelector('.date-input')?.value||td.querySelector('.owner-sel')?.value||td.querySelector('.status-sel')?.value||td.querySelector('.ce,.ce-lg')?.textContent||'').toLowerCase();
+}
+
+// ── Agenda popup ──────────────────────────────────────────────────
+let agTd=null,agBtn=null;
+function openAg(td,btn,e){
+  agTd=td;agBtn=btn;
+  const p=document.getElementById('ag-popup');
+  document.getElementById('ag-ta').value=td.dataset.agenda||'';
+  p.classList.add('open');
+  const r=btn.getBoundingClientRect();
+  let top=r.bottom+6,left=r.left;
+  if(left+300>innerWidth-10)left=innerWidth-310;
+  if(top+240>innerHeight-10)top=r.top-246;
+  p.style.top=top+'px';p.style.left=left+'px';
+  document.getElementById('ag-ta').focus();
+}
+function closeAg(){
+  if(agTd){
+    const v=document.getElementById('ag-ta').value;
+    agTd.dataset.agenda=v;
+    if(agBtn)agBtn.className='ag-btn'+(v?' has':'');
+    save();
+  }
+  document.getElementById('ag-popup').classList.remove('open');
+  agTd=null;agBtn=null;
+}
+
+// ── Link cell ─────────────────────────────────────────────────────
+function makeLinkCell(label,url){
+  const wrap=document.createElement('div'); wrap.className='link-cell';
+  const iw=document.createElement('div'); iw.className='link-input-wrap';
+  const pn=document.getElementById('lpt').content.cloneNode(true);
+  const popup=pn.querySelector('.lp');
+  popup.querySelector('label').textContent=label;
+  const inp=popup.querySelector('input'); inp.value=url||'';
+  const icon=document.createElement('a'); icon.className='li'+(url?' on':'');
+  icon.title=url?'Open '+label:'Add '+label; icon.innerHTML=linkSVG();
+  if(url){icon.href=url;icon.target='_blank';}
+  icon.addEventListener('click',e=>{
+    if(icon.getAttribute('href'))return;
+    e.preventDefault();closeAllLnk();popup.classList.add('open');inp.focus();inp.select();
+  });
+  const eb=document.createElement('button'); eb.className='li'; eb.style.cssText='border:none;cursor:pointer;';
+  eb.title='Edit link'; eb.innerHTML=pencilSVG();
+  eb.addEventListener('click',e=>{e.stopPropagation();closeAllLnk();popup.classList.add('open');inp.focus();inp.select();});
+  popup._icon=icon; popup._label=label;
+  iw.appendChild(icon);iw.appendChild(eb);iw.appendChild(popup);
+  wrap.appendChild(iw); return wrap;
+}
+function saveLnk(btn){
+  const p=btn.closest('.lp'),url=p.querySelector('input').value.trim(),icon=p._icon;
+  if(url){icon.href=url;icon.target='_blank';icon.className='li on';icon.title='Open '+p._label;}
+  else{icon.removeAttribute('href');icon.removeAttribute('target');icon.className='li';icon.title='Add '+p._label;}
+  p.classList.remove('open');save();
+}
+function clearLnk(btn){
+  const p=btn.closest('.lp'),icon=p._icon;
+  p.querySelector('input').value='';
+  icon.removeAttribute('href');icon.removeAttribute('target');
+  icon.className='li';icon.title='Add '+p._label;
+  p.classList.remove('open');save();
+}
+function closeAllLnk(){document.querySelectorAll('.lp.open').forEach(p=>p.classList.remove('open'));}
+
+// ── Global click handler ──────────────────────────────────────────
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#ag-popup')&&!e.target.closest('.ag-btn'))closeAg();
+  if(!e.target.closest('.att-cell'))closeAllAtt();
+  if(!e.target.closest('.link-input-wrap'))closeAllLnk();
+});
+
+// ── Calendar ──────────────────────────────────────────────────────
+let calY=new Date().getFullYear(),calM=new Date().getMonth();
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOWS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function calStep(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
+function renderCal(){
+  document.getElementById('cal-title').textContent=MONTHS[calM]+' '+calY;
+  const grid=document.getElementById('cal-grid'); grid.innerHTML='';
+  DOWS.forEach(d=>{const c=document.createElement('div');c.className='cal-dow';c.textContent=d;grid.appendChild(c);});
+  const firstDow=new Date(calY,calM,1).getDay();
+  const days=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  const evts={};
+  const addEv=(dateStr,title,type)=>{
+    if(!dateStr)return;
+    const d=new Date(dateStr+'T00:00:00');
+    if(d.getFullYear()===calY&&d.getMonth()===calM){
+      const k=d.getDate(); if(!evts[k])evts[k]=[];
+      evts[k].push({title:title||'(untitled)',type});
+    }
+  };
+  document.querySelectorAll('#meetings-body tr').forEach(tr=>addEv(tr.querySelector('.date-input')?.value,tr.querySelector('.ce')?.textContent,'m'));
+  document.querySelectorAll('#deliverables-body tr').forEach(tr=>addEv(tr.querySelector('.date-input')?.value,tr.querySelector('.ce')?.textContent,'d'));
+  for(let i=0;i<firstDow;i++){const c=document.createElement('div');c.className='cal-day empty';grid.appendChild(c);}
+  for(let day=1;day<=days;day++){
+    const cell=document.createElement('div'); cell.className='cal-day';
+    const isToday=day===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear();
+    const num=document.createElement('div'); num.className='cal-num';
+    if(isToday)num.innerHTML=`<span class="cal-num today-num">${day}</span>`;
+    else num.textContent=day;
+    cell.appendChild(num);
+    (evts[day]||[]).forEach(ev=>{
+      const chip=document.createElement('div');
+      chip.className='cal-ev cal-ev-'+(ev.type==='m'?'m':'d');
+      chip.textContent=ev.title; chip.title=ev.title;
+      cell.appendChild(chip);
+    });
+    grid.appendChild(cell);
+  }
+}
+
+// ── SVGs ──────────────────────────────────────────────────────────
+function linkSVG(){return`<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h3v3M9 7l4-4M7 5H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3"/></svg>`;}
+function pencilSVG(){return`<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5 13.5 4.5 5 13H3v-2L11.5 2.5z"/></svg>`;}
+function noteSVG(){return`<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg>`;}
+
+// ── Utils ─────────────────────────────────────────────────────────
+function initials(n){const p=(n||'').trim().split(/\s+/);if(!p[0])return'?';if(p.length===1)return p[0].slice(0,2).toUpperCase();return(p[0][0]+p[p.length-1][0]).toUpperCase();}
+
+document.addEventListener('blur',e=>{if(e.target.contentEditable==='true')save();},true);
+
+// ── Init ──────────────────────────────────────────────────────────
+async function init(){
+  await jbLoad();
+  if(!JB_KEY) openSetup();
+}
+init();
+</script>
+</body>
+</html>
