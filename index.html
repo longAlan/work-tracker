@@ -140,6 +140,8 @@ tr:hover .arch-btn{opacity:1}
 tr.recur-child td{background:#fafaf8}
 tr.recur-child:hover td{background:#f5f4f1}
 .recur-label{font-size:11px;color:#aaa;padding-left:1.1rem;display:block}
+.cat-input{font-size:12px;border:none;background:transparent;outline:none;width:100%;font-family:inherit;color:#1a1a18;padding:0}
+.cat-input::placeholder{color:#c8c6bc}
 
 /* priority */
 .pri-col{width:26px;text-align:center;padding-left:4px!important;padding-right:2px!important}
@@ -238,7 +240,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
     <table>
       <colgroup>
         <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
-        <col style="width:175px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+        <col style="width:95px"><col style="width:160px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
@@ -246,6 +248,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
         <th class="sortable" onclick="sortTbl('meetings',2,this)">Date<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('meetings',3,this)">Accountable<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('meetings',4,this)">Status<span class="sarr"></span></th>
+        <th>Category</th>
         <th>Client Attendees</th>
         <th>Agenda</th><th>Deck</th><th></th>
       </tr></thead>
@@ -262,7 +265,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
     <table>
       <colgroup>
         <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
-        <col style="width:150px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
+        <col style="width:95px"><col style="width:135px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
@@ -270,6 +273,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
         <th class="sortable" onclick="sortTbl('deliverables',2,this)">Due Date<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('deliverables',3,this)">Accountable<span class="sarr"></span></th>
         <th class="sortable" onclick="sortTbl('deliverables',4,this)">Status<span class="sarr"></span></th>
+        <th>Category</th>
         <th>Linked Meeting</th>
         <th>Outline</th><th>Deck</th><th></th>
       </tr></thead>
@@ -285,15 +289,16 @@ tr.priority-row:hover td{background:#fef9c3!important}
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col style="width:35%"><col style="width:35%">
-        <col style="width:115px"><col style="width:120px"><col style="width:30px">
+        <col style="width:26px"><col style="width:30%"><col style="width:30%">
+        <col style="width:115px"><col style="width:95px"><col style="width:120px"><col style="width:30px">
       </colgroup>
       <thead><tr>
         <th class="pri-col"></th>
         <th class="sortable" onclick="sortTbl('risks',1,this)">Risk<span class="sarr"></span></th>
         <th>Suggested Mitigation</th>
         <th class="sortable" onclick="sortTbl('risks',3,this)">Status<span class="sarr"></span></th>
-        <th class="sortable" onclick="sortTbl('risks',4,this)">Accountable<span class="sarr"></span></th>
+        <th>Category</th>
+        <th class="sortable" onclick="sortTbl('risks',5,this)">Accountable<span class="sarr"></span></th>
         <th></th>
       </tr></thead>
       <tbody id="risks-body"></tbody>
@@ -342,6 +347,8 @@ tr.priority-row:hover td{background:#fef9c3!important}
     </div>
   </div>
 </template>
+
+<datalist id="cat-opts"></datalist>
 
 <!-- Delete confirm overlay -->
 <div class="overlay" id="del-conf-overlay">
@@ -624,28 +631,30 @@ function applyState(s) {
   (s.deliverables || []).forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
   (s.risks        || []).forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
   ['meetings', 'deliverables', 'risks'].forEach(updateCount);
+  updateCatList();
   renderArchive();
 }
 function loadDefaults() {
   archived = [];
   ['meetings', 'deliverables', 'risks'].forEach(sec => document.getElementById(sec + '-body').innerHTML = '');
   [
-    { title: 'Kickoff',     date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
-    { title: 'Weekly sync', date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
+    { title: 'Kickoff',     date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', category: '', agenda: '', deck: '' },
+    { title: 'Weekly sync', date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', category: '', agenda: '', deck: '' },
   ].forEach(d => { const tr = makeMRow(d); document.getElementById('meetings-body').appendChild(tr); refreshRecurRows(tr); });
   [
-    { title: 'Project plan',        date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
-    { title: 'Final presentation',  date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
+    { title: 'Project plan',        date: '', owner: '', status: 'Not started', category: '', linkedMeeting: '', outline: '', deck: '' },
+    { title: 'Final presentation',  date: '', owner: '', status: 'Not started', category: '', linkedMeeting: '', outline: '', deck: '' },
   ].forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
   [
-    { risk: '', mitigation: '', status: 'Open', owner: '' },
+    { risk: '', mitigation: '', status: 'Open', category: '', owner: '' },
   ].forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
   ['meetings', 'deliverables', 'risks'].forEach(updateCount);
+  updateCatList();
   renderArchive();
 }
 
 // ── Row data collectors ───────────────────────────────────────────
-// Meetings columns: 0=pri 1=title 2=date(+recur-sel) 3=owner 4=status 5=attendees 6=agenda 7=deck 8=archive
+// Meetings columns: 0=pri 1=title 2=date 3=owner 4=status 5=category 6=attendees 7=agenda 8=deck 9=archive
 function getMRows() {
   return [...document.querySelectorAll('#meetings-body tr:not(.recur-child)')].map(tr => {
     const c = tr.querySelectorAll('td');
@@ -653,7 +662,12 @@ function getMRows() {
     let sib = tr.nextElementSibling;
     while (sib && sib.classList.contains('recur-child')) {
       const cc = sib.querySelectorAll('td');
-      recurChildren.push({ status: cc[4].querySelector('.status-sel')?.value || '', agenda: cc[6].dataset.agenda || '' });
+      recurChildren.push({
+        date:   cc[2].querySelector('.date-input')?.value || '',
+        status: cc[4].querySelector('.status-sel')?.value || '',
+        agenda: cc[7].dataset.agenda || '',
+        deck:   safeHref(cc[8].querySelector('.li')),
+      });
       sib = sib.nextElementSibling;
     }
     return {
@@ -665,13 +679,14 @@ function getMRows() {
       recurChildren,
       owner:          c[3].querySelector('.owner-sel').value,
       status:         c[4].querySelector('.status-sel').value,
-      attendees:      JSON.parse(c[5].dataset.attendees || '[]'),
-      agenda:         c[6].dataset.agenda || '',
-      deck:           safeHref(c[7].querySelector('.li')),
+      category:       c[5].querySelector('.cat-input')?.value || '',
+      attendees:      JSON.parse(c[6].dataset.attendees || '[]'),
+      agenda:         c[7].dataset.agenda || '',
+      deck:           safeHref(c[8].querySelector('.li')),
     };
   });
 }
-// Deliverables columns: 0=pri 1=title 2=date 3=owner 4=status 5=linkedMeeting 6=outline(note) 7=deck 8=archive
+// Deliverables columns: 0=pri 1=title 2=date 3=owner 4=status 5=category 6=linkedMeeting 7=outline(note) 8=deck 9=archive
 function getDRows() {
   return [...document.querySelectorAll('#deliverables-body tr')].map(tr => {
     const c = tr.querySelectorAll('td');
@@ -681,13 +696,14 @@ function getDRows() {
       date:          c[2].querySelector('.date-input').value,
       owner:         c[3].querySelector('.owner-sel').value,
       status:        c[4].querySelector('.status-sel').value,
-      linkedMeeting: c[5].querySelector('.lnk-sel').value,
-      outline:       c[6].dataset.outline || '',
-      deck:          safeHref(c[7].querySelector('.li')),
+      category:      c[5].querySelector('.cat-input')?.value || '',
+      linkedMeeting: c[6].querySelector('.lnk-sel').value,
+      outline:       c[7].dataset.outline || '',
+      deck:          safeHref(c[8].querySelector('.li')),
     };
   });
 }
-// Risks columns: 0=pri 1=risk 2=mitigation 3=status 4=owner 5=archive
+// Risks columns: 0=pri 1=risk 2=mitigation 3=status 4=category 5=owner 6=archive
 function getRRows() {
   return [...document.querySelectorAll('#risks-body tr')].map(tr => {
     const c = tr.querySelectorAll('td');
@@ -696,7 +712,8 @@ function getRRows() {
       risk:       c[1].querySelector('.ce-lg').textContent,
       mitigation: c[2].querySelector('.ce-lg').textContent,
       status:     c[3].querySelector('.status-sel').value,
-      owner:      c[4].querySelector('.owner-sel').value,
+      category:   c[4].querySelector('.cat-input')?.value || '',
+      owner:      c[5].querySelector('.owner-sel').value,
     };
   });
 }
@@ -704,6 +721,19 @@ function safeHref(el) {
   if (!el) return '';
   const h = el.getAttribute('href');
   return h && h !== '' && !h.endsWith(location.pathname) ? h : '';
+}
+
+// ── Category cell ─────────────────────────────────────────────────
+function makeCatTd(val) {
+  const td = document.createElement('td');
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'cat-input';
+  inp.placeholder = 'Add category'; inp.setAttribute('list', 'cat-opts');
+  inp.value = val || '';
+  inp.addEventListener('change', () => { updateCatList(); save(); });
+  inp.addEventListener('blur',   () => { updateCatList(); save(); });
+  td.appendChild(inp);
+  return td;
 }
 
 // ── Helpers: owner cell, status cell ─────────────────────────────
@@ -789,7 +819,7 @@ function makeMRow(data) {
   const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input'; di.value = data.date || '';
   const rc = document.createElement('div'); rc.className = 'recur-ctrl';
   const rs = document.createElement('select'); rs.className = 'recur-sel' + (data.recurrence ? ' active' : '');
-  [['', 'No repeat'], ['weekly', 'Weekly'], ['biweekly', 'Bi-weekly'], ['monthly', 'Monthly'], ['daily', 'Daily']].forEach(([v, lbl]) => {
+  [['', 'No repeat'], ['weekly', 'Weekly'], ['biweekly', 'Bi-weekly'], ['monthly', 'Monthly'], ['quarterly', 'Quarterly'], ['daily', 'Daily']].forEach(([v, lbl]) => {
     const o = document.createElement('option'); o.value = v; o.textContent = lbl;
     if (v === (data.recurrence || '')) o.selected = true;
     rs.appendChild(o);
@@ -808,26 +838,27 @@ function makeMRow(data) {
     this.className = 'recur-sel' + (this.value ? ' active' : '');
     tog.style.display = this.value ? 'inline-flex' : 'none';
     if (!this.value) tog.classList.remove('open');
-    refreshRecurRows(tr); save();
+    refreshRecurRows(tr, true); save();
   });
-  di.addEventListener('change', () => { refreshRecurRows(tr); save(); });
+  di.addEventListener('change', () => { refreshRecurRows(tr, true); save(); });
   rc.appendChild(rs); rc.appendChild(tog);
   t2.appendChild(di); t2.appendChild(rc);
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
-  const t5 = makeAttTd(data.attendees || []);
+  const t5 = makeCatTd(data.category);
+  const t6att = makeAttTd(data.attendees || []);
 
-  const t6 = document.createElement('td'); t6.dataset.agenda = data.agenda || '';
+  const t7ag = document.createElement('td'); t7ag.dataset.agenda = data.agenda || '';
   const ab = document.createElement('button'); ab.className = 'ag-btn' + (data.agenda ? ' has' : ''); ab.title = 'Open agenda';
   ab.innerHTML = noteSVG();
-  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
-  t6.appendChild(ab);
+  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t7ag, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
+  t7ag.appendChild(ab);
 
-  const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
-  const t8 = makeArchBtn(tr, 'meetings');
+  const t8dk = document.createElement('td'); t8dk.appendChild(makeLinkCell('Working Deck', data.deck || ''));
+  const t9 = makeArchBtn(tr, 'meetings');
 
-  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+  tr.append(t0, t1, t2, t3, t4, t5, t6att, t7ag, t8dk, t9);
   return tr;
 }
 
@@ -849,24 +880,25 @@ function makeDRow(data) {
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
+  const t5cat = makeCatTd(data.category);
 
-  const t5 = document.createElement('td');
+  const t6lnk = document.createElement('td');
   const ls = document.createElement('select'); ls.className = 'lnk-sel' + (data.linkedMeeting ? ' set' : '');
   ls.addEventListener('focus', () => fillLinkedSel(ls, ls.value));
   ls.addEventListener('change', function() { this.className = 'lnk-sel' + (this.value ? ' set' : ''); save(); });
   fillLinkedSel(ls, data.linkedMeeting || '');
-  t5.appendChild(ls);
+  t6lnk.appendChild(ls);
 
-  const t6 = document.createElement('td'); t6.dataset.outline = data.outline || '';
+  const t7out = document.createElement('td'); t7out.dataset.outline = data.outline || '';
   const ob = document.createElement('button'); ob.className = 'ag-btn' + (data.outline ? ' has' : ''); ob.title = 'Open outline';
   ob.innerHTML = noteSVG();
-  ob.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ob, e, '\u{1F4DD} Outline', 'outline'); });
-  t6.appendChild(ob);
+  ob.addEventListener('click', e => { e.stopPropagation(); openNote(t7out, ob, e, '\u{1F4DD} Outline', 'outline'); });
+  t7out.appendChild(ob);
 
-  const t7 = document.createElement('td'); t7.appendChild(makeLinkCell('Working Deck', data.deck || ''));
-  const t8 = makeArchBtn(tr, 'deliverables');
+  const t8dk = document.createElement('td'); t8dk.appendChild(makeLinkCell('Working Deck', data.deck || ''));
+  const t9 = makeArchBtn(tr, 'deliverables');
 
-  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+  tr.append(t0, t1, t2, t3, t4, t5cat, t6lnk, t7out, t8dk, t9);
   return tr;
 }
 
@@ -887,10 +919,11 @@ function makeRRow(data) {
   m.textContent = data.mitigation || ''; m.addEventListener('input', save); t2.appendChild(m);
 
   const t3 = makeStatusTd(data.status || 'Open', RISK_STATUSES);
-  const t4 = makeOwnerTd(data.owner);
-  const t5 = makeArchBtn(tr, 'risks');
+  const t4cat = makeCatTd(data.category);
+  const t5 = makeOwnerTd(data.owner);
+  const t6 = makeArchBtn(tr, 'risks');
 
-  tr.append(t0, t1, t2, t3, t4, t5);
+  tr.append(t0, t1, t2, t3, t4cat, t5, t6);
   return tr;
 }
 
@@ -905,9 +938,10 @@ function archiveRow(tr, section) {
       date:      c[2].querySelector('.date-input').value,
       owner:     c[3].querySelector('.owner-sel').value,
       status:    c[4].querySelector('.status-sel').value,
-      attendees: JSON.parse(c[5].dataset.attendees || '[]'),
-      agenda:    c[6].dataset.agenda || '',
-      deck:      safeHref(c[7].querySelector('.li')),
+      category:  c[5].querySelector('.cat-input')?.value || '',
+      attendees: JSON.parse(c[6].dataset.attendees || '[]'),
+      agenda:    c[7].dataset.agenda || '',
+      deck:      safeHref(c[8].querySelector('.li')),
     };
   } else if (section === 'deliverables') {
     data = {
@@ -916,9 +950,10 @@ function archiveRow(tr, section) {
       date:          c[2].querySelector('.date-input').value,
       owner:         c[3].querySelector('.owner-sel').value,
       status:        c[4].querySelector('.status-sel').value,
-      linkedMeeting: c[5].querySelector('.lnk-sel').value,
-      outline:       c[6].dataset.outline || '',
-      deck:          safeHref(c[7].querySelector('.li')),
+      category:      c[5].querySelector('.cat-input')?.value || '',
+      linkedMeeting: c[6].querySelector('.lnk-sel').value,
+      outline:       c[7].dataset.outline || '',
+      deck:          safeHref(c[8].querySelector('.li')),
     };
   } else {
     data = {
@@ -926,7 +961,8 @@ function archiveRow(tr, section) {
       risk:       c[1].querySelector('.ce-lg').textContent,
       mitigation: c[2].querySelector('.ce-lg').textContent,
       status:     c[3].querySelector('.status-sel').value,
-      owner:      c[4].querySelector('.owner-sel').value,
+      category:   c[4].querySelector('.cat-input')?.value || '',
+      owner:      c[5].querySelector('.owner-sel').value,
     };
   }
   archived.push({ sec: section, data });
@@ -1059,7 +1095,17 @@ function toggleAtt(td, popup, name, render) {
 }
 function toggleAttPopup(td, popup) {
   const was = popup.classList.contains('open');
-  closeAllAtt(); if (!was) popup.classList.add('open');
+  closeAllAtt();
+  if (!was) {
+    popup.style.top = ''; popup.style.bottom = '';
+    popup.classList.add('open');
+    const rect = popup.getBoundingClientRect();
+    if (rect.bottom > window.innerHeight - 8) {
+      popup.classList.remove('open');
+      popup.style.top = 'auto'; popup.style.bottom = 'calc(100% + 4px)';
+      popup.classList.add('open');
+    }
+  }
 }
 function closeAllAtt() { document.querySelectorAll('.att-popup.open').forEach(p => p.classList.remove('open')); }
 
@@ -1227,31 +1273,38 @@ function renderCal() {
 }
 
 // ── Recurring meetings ────────────────────────────────────────────
-function refreshRecurRows(parentTr) {
+function refreshRecurRows(parentTr, forceRecalc) {
   if (parentTr.classList.contains('recur-child')) return;
-  // Collect existing child data before removing
   const existingData = [];
   let next = parentTr.nextElementSibling;
   while (next && next.classList.contains('recur-child')) {
     const cc = next.querySelectorAll('td');
-    existingData.push({ status: cc[4].querySelector('.status-sel')?.value || '', agenda: cc[6].dataset.agenda || '' });
+    existingData.push({
+      date:   cc[2].querySelector('.date-input')?.value || '',
+      status: cc[4].querySelector('.status-sel')?.value || '',
+      agenda: cc[7].dataset.agenda || '',
+      deck:   safeHref(cc[8].querySelector('.li')),
+    });
     const toRemove = next; next = next.nextElementSibling; toRemove.remove();
   }
   const seedData = existingData.length > 0 ? existingData : (parentTr._recurChildData || []);
-  const dateStr   = parentTr.querySelector('.date-input')?.value || '';
+  const dateStr    = parentTr.querySelector('.date-input')?.value || '';
   const recurrence = parentTr.querySelector('.recur-sel')?.value || '';
   if (!recurrence || !dateStr) return;
   const title    = parentTr.querySelector('.ce')?.textContent || '';
   const collapsed = parentTr._recurCollapsed || false;
   const base = new Date(dateStr + 'T00:00:00');
+  const pad = n => String(n).padStart(2, '0');
   let insertAfter = parentTr;
   for (let i = 1; i <= 3; i++) {
     const d = new Date(base);
-    if      (recurrence === 'daily')    d.setDate(d.getDate() + i);
-    else if (recurrence === 'weekly')   d.setDate(d.getDate() + 7 * i);
-    else if (recurrence === 'biweekly') d.setDate(d.getDate() + 14 * i);
-    else if (recurrence === 'monthly')  d.setMonth(d.getMonth() + i);
-    const childTr = makeRecurChildRow(title, d, seedData[i - 1] || {});
+    if      (recurrence === 'daily')     d.setDate(d.getDate() + i);
+    else if (recurrence === 'weekly')    d.setDate(d.getDate() + 7 * i);
+    else if (recurrence === 'biweekly')  d.setDate(d.getDate() + 14 * i);
+    else if (recurrence === 'monthly')   d.setMonth(d.getMonth() + i);
+    else if (recurrence === 'quarterly') d.setMonth(d.getMonth() + 3 * i);
+    const calcDateStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const childTr = makeRecurChildRow(title, calcDateStr, forceRecalc ? {} : (seedData[i - 1] || {}));
     if (collapsed) childTr.style.display = 'none';
     const refNode = insertAfter.nextElementSibling;
     parentTr.parentNode.insertBefore(childTr, refNode || null);
@@ -1259,40 +1312,39 @@ function refreshRecurRows(parentTr) {
   }
 }
 
-function makeRecurChildRow(title, date, childData) {
+function makeRecurChildRow(title, calcDateStr, childData) {
   childData = childData || {};
-  const pad = n => String(n).padStart(2, '0');
-  const dateStr = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
   const tr = document.createElement('tr'); tr.className = 'recur-child';
-
-  // 0: pri (empty)
+  // 10 cols matching parent: 0=pri 1=title 2=date 3=owner 4=status 5=cat 6=att 7=agenda 8=deck 9=archive
   const t0 = document.createElement('td'); t0.className = 'pri-col';
-  // 1: title (read-only, indented)
   const t1 = document.createElement('td');
   t1.innerHTML = `<span class="recur-label">↳ ${title || '(untitled)'}</span>`;
-  // 2: date (read-only)
   const t2 = document.createElement('td');
   const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input';
-  di.value = dateStr; di.readOnly = true; di.style.cssText = 'opacity:0.6;cursor:default;pointer-events:none';
+  di.value = childData.date || calcDateStr;
+  di.addEventListener('change', save);
   t2.appendChild(di);
-  // 3: owner (empty)
   const t3 = document.createElement('td');
-  // 4: status (interactive)
   const t4 = makeStatusTd(childData.status || '', STATUSES);
-  // 5: attendees (empty)
   const t5 = document.createElement('td');
-  // 6: agenda (interactive note button)
-  const t6 = document.createElement('td'); t6.dataset.agenda = childData.agenda || '';
+  const t6 = document.createElement('td');
+  const t7 = document.createElement('td'); t7.dataset.agenda = childData.agenda || '';
   const ab = document.createElement('button'); ab.className = 'ag-btn' + (childData.agenda ? ' has' : ''); ab.title = 'Open agenda';
   ab.innerHTML = noteSVG();
-  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t6, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
-  t6.appendChild(ab);
-  // 7: deck (empty), 8: archive (empty)
-  const t7 = document.createElement('td');
-  const t8 = document.createElement('td');
-
-  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8);
+  ab.addEventListener('click', e => { e.stopPropagation(); openNote(t7, ab, e, '\u{1F4CB} Agenda', 'agenda'); });
+  t7.appendChild(ab);
+  const t8 = document.createElement('td'); t8.appendChild(makeLinkCell('Working Deck', childData.deck || ''));
+  const t9 = document.createElement('td');
+  tr.append(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9);
   return tr;
+}
+
+// ── Category datalist ─────────────────────────────────────────────
+function updateCatList() {
+  const cats = new Set();
+  document.querySelectorAll('.cat-input').forEach(inp => { const v = inp.value.trim(); if (v) cats.add(v); });
+  const dl = document.getElementById('cat-opts'); dl.innerHTML = '';
+  cats.forEach(c => { const o = document.createElement('option'); o.value = c; dl.appendChild(o); });
 }
 
 // ── SVGs ──────────────────────────────────────────────────────────
