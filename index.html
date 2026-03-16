@@ -128,6 +128,15 @@ tr:hover .arch-btn{opacity:1}
 .arch-btn:hover{background:#FAEEDA}
 .act{width:30px;text-align:center}
 
+/* recurring meetings */
+.recur-sel{-webkit-appearance:none;appearance:none;border:none;background:transparent;font-size:10px;font-family:inherit;color:#aaa;cursor:pointer;outline:none;width:100%;margin-top:2px;display:block}
+.recur-sel.active{color:#185FA5;font-weight:500}
+.recur-sel:focus{color:#1a1a18}
+tr.recur-child td{background:#fafaf8;color:#6b6b67}
+tr.recur-child:hover td{background:#f5f4f1}
+.recur-label{font-size:11px;color:#aaa;padding-left:1.1rem;display:block}
+.recur-date-text{font-size:12px;color:#888}
+
 /* priority */
 .pri-col{width:26px;text-align:center;padding-left:4px!important;padding-right:2px!important}
 .pri-btn{opacity:0;width:20px;height:20px;border-radius:4px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#d1d5db;padding:0;flex-shrink:0;transition:opacity 0.1s,color 0.15s,background 0.1s}
@@ -224,7 +233,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
         <col style="width:175px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
@@ -248,7 +257,7 @@ tr.priority-row:hover td{background:#fef9c3!important}
     </div>
     <table>
       <colgroup>
-        <col style="width:26px"><col><col style="width:105px"><col style="width:120px"><col style="width:115px">
+        <col style="width:26px"><col><col style="width:136px"><col style="width:120px"><col style="width:115px">
         <col style="width:150px"><col style="width:54px"><col style="width:54px"><col style="width:30px">
       </colgroup>
       <thead><tr>
@@ -607,7 +616,7 @@ function applyState(s) {
   if (s.rTitle)   document.querySelector('#risks-card .card-hdr-title').textContent = s.rTitle;
   archived = s.archived || [];
   ['meetings', 'deliverables', 'risks'].forEach(sec => document.getElementById(sec + '-body').innerHTML = '');
-  (s.meetings     || []).forEach(d => document.getElementById('meetings-body').appendChild(makeMRow(d)));
+  (s.meetings     || []).forEach(d => { const tr = makeMRow(d); document.getElementById('meetings-body').appendChild(tr); refreshRecurRows(tr); });
   (s.deliverables || []).forEach(d => document.getElementById('deliverables-body').appendChild(makeDRow(d)));
   (s.risks        || []).forEach(d => document.getElementById('risks-body').appendChild(makeRRow(d)));
   ['meetings', 'deliverables', 'risks'].forEach(updateCount);
@@ -617,9 +626,9 @@ function loadDefaults() {
   archived = [];
   ['meetings', 'deliverables', 'risks'].forEach(sec => document.getElementById(sec + '-body').innerHTML = '');
   [
-    { title: 'Kickoff',     date: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
-    { title: 'Weekly sync', date: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
-  ].forEach(d => document.getElementById('meetings-body').appendChild(makeMRow(d)));
+    { title: 'Kickoff',     date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
+    { title: 'Weekly sync', date: '', recurrence: '', owner: '', attendees: [], status: 'Not started', agenda: '', deck: '' },
+  ].forEach(d => { const tr = makeMRow(d); document.getElementById('meetings-body').appendChild(tr); refreshRecurRows(tr); });
   [
     { title: 'Project plan',        date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
     { title: 'Final presentation',  date: '', owner: '', status: 'Not started', linkedMeeting: '', outline: '', deck: '' },
@@ -632,19 +641,20 @@ function loadDefaults() {
 }
 
 // ── Row data collectors ───────────────────────────────────────────
-// Meetings columns: 0=pri 1=title 2=date 3=owner 4=status 5=attendees 6=agenda 7=deck 8=archive
+// Meetings columns: 0=pri 1=title 2=date(+recur-sel) 3=owner 4=status 5=attendees 6=agenda 7=deck 8=archive
 function getMRows() {
-  return [...document.querySelectorAll('#meetings-body tr')].map(tr => {
+  return [...document.querySelectorAll('#meetings-body tr:not(.recur-child)')].map(tr => {
     const c = tr.querySelectorAll('td');
     return {
-      priority:  tr.classList.contains('priority-row'),
-      title:     c[1].querySelector('.ce').textContent,
-      date:      c[2].querySelector('.date-input').value,
-      owner:     c[3].querySelector('.owner-sel').value,
-      status:    c[4].querySelector('.status-sel').value,
-      attendees: JSON.parse(c[5].dataset.attendees || '[]'),
-      agenda:    c[6].dataset.agenda || '',
-      deck:      safeHref(c[7].querySelector('.li')),
+      priority:   tr.classList.contains('priority-row'),
+      title:      c[1].querySelector('.ce').textContent,
+      date:       c[2].querySelector('.date-input').value,
+      recurrence: c[2].querySelector('.recur-sel')?.value || '',
+      owner:      c[3].querySelector('.owner-sel').value,
+      status:     c[4].querySelector('.status-sel').value,
+      attendees:  JSON.parse(c[5].dataset.attendees || '[]'),
+      agenda:     c[6].dataset.agenda || '',
+      deck:       safeHref(c[7].querySelector('.li')),
     };
   });
 }
@@ -759,7 +769,18 @@ function makeMRow(data) {
 
   const t2 = document.createElement('td');
   const di = document.createElement('input'); di.type = 'date'; di.className = 'date-input'; di.value = data.date || '';
-  di.addEventListener('change', save); t2.appendChild(di);
+  const rs = document.createElement('select'); rs.className = 'recur-sel' + (data.recurrence ? ' active' : '');
+  [['', 'No repeat'], ['weekly', 'Weekly'], ['biweekly', 'Bi-weekly'], ['monthly', 'Monthly'], ['daily', 'Daily']].forEach(([v, lbl]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = lbl;
+    if (v === (data.recurrence || '')) o.selected = true;
+    rs.appendChild(o);
+  });
+  rs.addEventListener('change', function() {
+    this.className = 'recur-sel' + (this.value ? ' active' : '');
+    refreshRecurRows(tr); save();
+  });
+  di.addEventListener('change', () => { refreshRecurRows(tr); save(); });
+  t2.appendChild(di); t2.appendChild(rs);
 
   const t3 = makeOwnerTd(data.owner);
   const t4 = makeStatusTd(data.status, STATUSES);
@@ -930,9 +951,9 @@ function renderArchive() {
 
     let thHTML = '';
     if (key === 'meetings') {
-      thHTML = '<tr><th>Meeting</th><th style="width:105px">Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
+      thHTML = '<tr><th>Meeting</th><th style="width:136px">Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
     } else if (key === 'deliverables') {
-      thHTML = '<tr><th>Deliverable</th><th style="width:105px">Due Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
+      thHTML = '<tr><th>Deliverable</th><th style="width:136px">Due Date</th><th style="width:120px">Owner</th><th style="width:115px">Status</th><th style="width:130px"></th></tr>';
     } else {
       thHTML = '<tr><th>Risk</th><th style="width:115px">Status</th><th style="width:120px">Owner</th><th style="width:130px"></th></tr>';
     }
@@ -1028,11 +1049,12 @@ function addRow(sec) {
   const tbody = document.getElementById(sec + '-body');
   const tr = sec === 'meetings' ? makeMRow() : sec === 'deliverables' ? makeDRow() : makeRRow();
   tbody.appendChild(tr);
+  if (sec === 'meetings') refreshRecurRows(tr);
   (tr.querySelector('.ce,.ce-lg') || {}).focus && tr.querySelector('.ce,.ce-lg').focus();
   updateCount(sec); save();
 }
 function updateCount(sec) {
-  const n = document.getElementById(sec + '-body').querySelectorAll('tr').length;
+  const n = document.getElementById(sec + '-body').querySelectorAll('tr:not(.recur-child)').length;
   const lbl = { meetings: 'meeting', deliverables: 'deliverable', risks: 'risk' }[sec];
   document.getElementById(sec + '-count').textContent = n === 1 ? `1 ${lbl}` : `${n} ${lbl}s`;
 }
@@ -1045,12 +1067,15 @@ function sortTbl(sec, col, th) {
   table.querySelectorAll('th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
   th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
   const tbody = document.getElementById(sec + '-body');
+  tbody.querySelectorAll('.recur-child').forEach(r => r.remove());
   const rows = [...tbody.querySelectorAll('tr')];
   rows.sort((a, b) => {
     const av = sortVal(a, col), bv = sortVal(b, col);
     return av < bv ? -dir : av > bv ? dir : 0;
   });
-  rows.forEach(r => tbody.appendChild(r)); save();
+  rows.forEach(r => tbody.appendChild(r));
+  if (sec === 'meetings') tbody.querySelectorAll('tr').forEach(r => refreshRecurRows(r));
+  save();
 }
 function sortVal(tr, col) {
   const td = tr.querySelectorAll('td')[col]; if (!td) return '';
@@ -1149,7 +1174,7 @@ function renderCal() {
       evts[k].push({ title: title || '(untitled)', type });
     }
   };
-  document.querySelectorAll('#meetings-body tr').forEach(tr => addEv(tr.querySelector('.date-input')?.value, tr.querySelector('.ce')?.textContent, 'm'));
+  document.querySelectorAll('#meetings-body tr:not(.recur-child)').forEach(tr => addEv(tr.querySelector('.date-input')?.value, tr.querySelector('.ce')?.textContent, 'm'));
   document.querySelectorAll('#deliverables-body tr').forEach(tr => addEv(tr.querySelector('.date-input')?.value, tr.querySelector('.ce')?.textContent, 'd'));
   for (let i = 0; i < firstDow; i++) { const c = document.createElement('div'); c.className = 'cal-day empty'; grid.appendChild(c); }
   for (let day = 1; day <= days; day++) {
@@ -1167,6 +1192,46 @@ function renderCal() {
     });
     grid.appendChild(cell);
   }
+}
+
+// ── Recurring meetings ────────────────────────────────────────────
+function refreshRecurRows(parentTr) {
+  if (parentTr.classList.contains('recur-child')) return;
+  // Remove existing child rows
+  let next = parentTr.nextElementSibling;
+  while (next && next.classList.contains('recur-child')) {
+    const toRemove = next; next = next.nextElementSibling; toRemove.remove();
+  }
+  const dateStr = parentTr.querySelector('.date-input')?.value || '';
+  const recurrence = parentTr.querySelector('.recur-sel')?.value || '';
+  if (!recurrence || !dateStr) return;
+  const title = parentTr.querySelector('.ce')?.textContent || '';
+  const base = new Date(dateStr + 'T00:00:00');
+  let insertAfter = parentTr;
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(base);
+    if      (recurrence === 'daily')    d.setDate(d.getDate() + i);
+    else if (recurrence === 'weekly')   d.setDate(d.getDate() + 7 * i);
+    else if (recurrence === 'biweekly') d.setDate(d.getDate() + 14 * i);
+    else if (recurrence === 'monthly')  d.setMonth(d.getMonth() + i);
+    const childTr = makeRecurChildRow(title, d);
+    const refNode = insertAfter.nextElementSibling;
+    parentTr.parentNode.insertBefore(childTr, refNode || null);
+    insertAfter = childTr;
+  }
+}
+
+function makeRecurChildRow(title, date) {
+  const pad = n => String(n).padStart(2, '0');
+  const dateStr = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+  const tr = document.createElement('tr'); tr.className = 'recur-child';
+  // 9 cols: pri | title | date | owner | status | attendees | agenda | deck | archive
+  tr.innerHTML = `
+    <td class="pri-col"></td>
+    <td><span class="recur-label">↳ ${title || '(untitled)'}</span></td>
+    <td><input type="date" class="date-input" value="${dateStr}" readonly style="opacity:0.6;cursor:default;pointer-events:none"></td>
+    <td></td><td></td><td></td><td></td><td></td><td></td>`;
+  return tr;
 }
 
 // ── SVGs ──────────────────────────────────────────────────────────
